@@ -19,12 +19,22 @@
 #  License text for the above reference.)
 
 find_path(FONTCONFIG_INCLUDE_DIR
-  fontconfig/fontconfig.h
+  NAMES fontconfig.h
+  HINTS
+    ENV FONTCONFIG_DIR
+  PATH_SUFFIXES
+    include/fontconfig
+    include
+  NO_DEFAULT_PATH
 )
 
 find_library(FONTCONFIG_LIBRARY
-  NAMES
-    fontconfig
+  NAMES fontconfig
+  HINTS
+    ENV FONTCONFIG_DIR
+  PATH_SUFFIXES
+    lib
+  NO_DEFAULT_PATH
 )
 
 # handle the QUIETLY and REQUIRED arguments and set FONTCONFIG_FOUND to TRUE
