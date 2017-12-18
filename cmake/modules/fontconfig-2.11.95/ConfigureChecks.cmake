@@ -26,10 +26,29 @@
 # Checking Headers and Functions for fontconfig
 
 include(CheckIncludeFile)
+include(CheckIncludeFiles)
 include(CheckFunctionExists)
 include(CheckStructHasMember)
 include(CheckSymbolExists)
 include(CheckTypeSize)
+
+include(CheckFileOffsetBits)
+include(CMakeTestInline)
+include(TestLargeFiles)
+
+
+function(check_type_exists type variable header default)
+  # Code from:
+  # https://github.com/sumoprojects/sumokoin/blob/master/external/unbound/configure_checks.cmake
+  set(CMAKE_EXTRA_INCLUDE_FILES "${header}")
+  check_type_size("${type}" "${variable}")
+
+  if(NOT HAVE_${type})
+    set("${variable}" "${default}" PARENT_SCOPE)
+  else()
+    set("${variable}" "FALSE" PARENT_SCOPE)
+  endif()
+endfunction()
 
 
 macro(check_freetype_struct_has_member struct member out_var)
@@ -37,6 +56,7 @@ macro(check_freetype_struct_has_member struct member out_var)
   "
       #include <ft2build.h>
       #include FT_FREETYPE_H
+      #include FT_TRUETYPE_TABLES_H
 
       int main()
       {
@@ -116,6 +136,34 @@ macro(try_compile_intel_atomic_primitives out_var)
   try_compile(_${out_var}
     ${PROJECT_BINARY_DIR}/try_compile_intel_atomic_primitives
     SOURCES ${PROJECT_BINARY_DIR}/try_compile_intel_atomic_primitives.c
+  )
+  if(_${out_var})
+    set(${out_var} 1)
+    set(is_found_msg "found")
+  else()
+    set(is_found_msg "not found")
+  endif()
+  message(STATUS "Looking for ${out_var} - ${is_found_msg}")
+endmacro()
+
+
+macro(try_compile_solaris_atomic_ops out_var)
+  # Code from:
+  # https://github.com/tamaskenez/harfbuzz-cmake/blob/master/CMakeLists.txt
+
+  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/try_compile_solaris_atomic_ops.c"
+  "
+      #include <atomic.h>
+      /* This requires Solaris Studio 12.2 or newer: */
+      #include <mbarrier.h>
+      void memory_barrier (void) { __machine_rw_barrier (); }
+      int atomic_add (volatile unsigned *i) { return atomic_add_int_nv (i, 1); }
+      void *atomic_ptr_cmpxchg (volatile void **target, void *cmp, void *newval)
+        { return atomic_cas_ptr (target, cmp, newval); }
+  ")
+  try_compile(_${out_var}
+    ${CMAKE_CURRENT_BINARY_DIR}/try_compile_solaris_atomic_ops
+    SOURCES ${CMAKE_CURRENT_BINARY_DIR}/try_compile_solaris_atomic_ops.c
   )
   if(_${out_var})
     set(${out_var} 1)
@@ -234,10 +282,31 @@ check_include_file("ndir.h" HAVE_NDIR_H)
 check_function_exists(posix_fadivse HAVE_POSIX_FADVISE)
 
 #/* Have POSIX threads */
-#cmakedefine HAVE_PTHREAD @HAVE_PTHREAD@
-
 #/* Have PTHREAD_PRIO_INHERIT. */
-#cmakedefine HAVE_PTHREAD_PRIO_INHERIT @HAVE_PTHREAD_PRIO_INHERIT@
+# Code from:
+# https://github.com/webmproject/libwebp/blob/master/cmake/deps.cmake
+# https://stackoverflow.com/a/29871891
+set(CMAKE_THREAD_PREFER_PTHREAD ON)
+find_package(Threads QUIET)
+if(Threads_FOUND AND CMAKE_USE_PTHREADS_INIT)
+  set(HAVE_PTHREAD 1)
+
+  foreach(PTHREAD_TEST HAVE_PTHREAD_PRIO_INHERIT PTHREAD_CREATE_UNDETACHED)
+    check_c_source_compiles(
+      "
+          #include <pthread.h>
+          int main (void) {
+            int attr = ${PTHREAD_TEST};
+            return attr;
+          }
+      "
+      ${PTHREAD_TEST}
+    )
+  endforeach()
+endif()
+# TODO
+#/* Have PTHREAD_PRIO_INHERIT. */
+#check_symbol_exists(PTHREAD_PRIO_INHERIT "pthread.h" HAVE_PTHREAD_PRIO_INHERIT)
 
 check_function_exists(rand HAVE_RAND)
 
@@ -267,11 +336,9 @@ check_function_exists(scandir HAVE_SCANDIR)
 
 check_include_file("sched.h" HAVE_SCHED_H)
 
-#/* Have sched_yield */
-#cmakedefine HAVE_SCHED_YIELD @HAVE_SCHED_YIELD@
+check_function_exists(sched_yield HAVE_SCHED_YIELD)
 
-#/* Have Solaris __machine_*_barrier and atomic_* operations */
-#cmakedefine HAVE_SOLARIS_ATOMIC_OPS @HAVE_SOLARIS_ATOMIC_OPS@
+try_compile_solaris_atomic_ops(HAVE_SOLARIS_ATOMIC_OPS)
 
 check_include_file("stdint.h" HAVE_STDINT_H)
 
@@ -281,20 +348,25 @@ check_include_file("strings.h" HAVE_STRINGS_H)
 
 check_include_file("string.h" HAVE_STRING_H)
 
-#/* Define to 1 if `d_type' is a member of `struct dirent'. */
-#cmakedefine HAVE_STRUCT_DIRENT_D_TYPE @HAVE_STRUCT_DIRENT_D_TYPE@
+check_struct_has_member("struct dirent" d_type sys/dir.h
+  HAVE_STRUCT_DIRENT_D_TYPE LANGUAGE C
+)
 
-#/* Define to 1 if `f_flags' is a member of `struct statfs'. */
-#cmakedefine HAVE_STRUCT_STATFS_F_FLAGS @HAVE_STRUCT_STATFS_F_FLAGS@
+check_struct_has_member("struct statfs" f_flags sys/statfs.h
+  HAVE_STRUCT_STATFS_F_FLAGS LANGUAGE C
+)
 
-#/* Define to 1 if `f_fstypename' is a member of `struct statfs'. */
-#cmakedefine HAVE_STRUCT_STATFS_F_FSTYPENAME @HAVE_STRUCT_STATFS_F_FSTYPENAME@
+check_struct_has_member("struct statfs" f_fstypename sys/statfs.h
+  HAVE_STRUCT_STATFS_F_FSTYPENAME LANGUAGE C
+)
 
-#/* Define to 1 if `f_basetype' is a member of `struct statvfs'. */
-#cmakedefine HAVE_STRUCT_STATVFS_F_BASETYPE @HAVE_STRUCT_STATVFS_F_BASETYPE@
+check_struct_has_member("struct statvfs" f_basetype sys/statvfs.h
+  HAVE_STRUCT_STATVFS_F_BASETYPE LANGUAGE C
+)
 
-#/* Define to 1 if `f_fstypename' is a member of `struct statvfs'. */
-#cmakedefine HAVE_STRUCT_STATVFS_F_FSTYPENAME @HAVE_STRUCT_STATVFS_F_FSTYPENAME@
+check_struct_has_member("struct statvfs" f_fstypename sys/statvfs.h
+  HAVE_STRUCT_STATVFS_F_FSTYPENAME LANGUAGE C
+)
 
 check_struct_has_member("struct stat" st_mtim sys/stat.h
   HAVE_STRUCT_STAT_ST_MTIM LANGUAGE C
@@ -318,11 +390,13 @@ check_include_file("sys/types.h" HAVE_SYS_TYPES_H)
 
 check_include_file("sys/vfs.h" HAVE_SYS_VFS_H)
 
-#/* Define to 1 if `usLowerOpticalPointSize' is a member of `TT_OS2'. */
-#cmakedefine HAVE_TT_OS2_USLOWEROPTICALPOINTSIZE @HAVE_TT_OS2_USLOWEROPTICALPOINTSIZE@
+check_freetype_struct_has_member(
+  TT_OS2 usLowerOpticalPointSize HAVE_TT_OS2_USLOWEROPTICALPOINTSIZE
+)
 
-#/* Define to 1 if `usUpperOpticalPointSize' is a member of `TT_OS2'. */
-#cmakedefine HAVE_TT_OS2_USUPPEROPTICALPOINTSIZE @HAVE_TT_OS2_USUPPEROPTICALPOINTSIZE@
+check_freetype_struct_has_member(
+  TT_OS2 usUpperOpticalPointSize HAVE_TT_OS2_USUPPEROPTICALPOINTSIZE
+)
 
 check_include_file("unistd.h" HAVE_UNISTD_H)
 
@@ -342,29 +416,36 @@ check_function_exists(_mktemp_s HAVE__MKTEMP_S)
 #cmakedefine LT_OBJDIR @LT_OBJDIR@
 
 #/* Name of package */
-#define PACKAGE "fontconfig"
+set(PACKAGE "\"fontconfig\"")
 
 #/* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT
+set(PACKAGE_BUGREPORT
+  "\"https://bugs.freedesktop.org/enter_bug.cgi?product=fontconfig\"")
 
 #/* Define to the full name of this package. */
-#define PACKAGE_NAME "fontconfig"
+set(PACKAGE_NAME "\"fontconfig\"")
 
 #/* Define to the full name and version of this package. */
-#define PACKAGE_STRING "fontconfig"
+set(PACKAGE_STRING "\"fontconfig 2.11.95\"")
 
 #/* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME ""
+set(PACKAGE_TARNAME "\"fontconfig\"")
 
 #/* Define to the home page for this package. */
-#define PACKAGE_URL ""
+set(PACKAGE_URL "\"\"")
 
 #/* Define to the version of this package. */
-#cmakedefine PACKAGE_VERSION 1
+set(PACKAGE_VERSION "\"2.11.95\"")
 
 #/* Define to necessary symbol if this constant uses a non-standard name on
 #   your system. */
-#cmakedefine PTHREAD_CREATE_JOINABLE @PTHREAD_CREATE_JOINABLE@
+check_symbol_exists(PTHREAD_CREATE_JOINABLE "pthread.h"
+  _PTHREAD_CREATE_JOINABLE
+)
+if(_PTHREAD_CREATE_JOINABLE)
+  set(PTHREAD_CREATE_JOINABLE "PTHREAD_CREATE_JOINABLE")
+endif()
+
 
 check_type_size("char"   SIZEOF_CHAR BUILTIN_TYPES_ONLY)
 
@@ -379,7 +460,7 @@ check_type_size("void*"  SIZEOF_VOIDP BUILTIN_TYPES_ONLY)
 check_type_size("void *" SIZEOF_VOID_P BUILTIN_TYPES_ONLY)
 
 #/* Define to 1 if you have the ANSI C header files. */
-#cmakedefine STDC_HEADERS @STDC_HEADERS@
+check_include_files("stdlib.h;stdarg.h;string.h;float.h" STDC_HEADERS)
 
 #/* Use iconv. */
 #cmakedefine USE_ICONV @USE_ICONV@
@@ -407,35 +488,34 @@ if(Solaris)
 endif()
 
 #/* Version number of package */
-#cmakedefine VERSION @VERSION@
+set(VERSION "\"2.11.95\"")
 
-set(_FILE_OFFSET_BITS 64) # TODO
+#/* Number of bits in a file offset, on hosts where this is settable. */
+check_file_offset_bits()
 
 #/* Define for large files, on AIX-style hosts. */
-#cmakedefine _LARGE_FILES
+#test_large_files() set _LARGE_FILES to 1 if success.
+test_large_files(HAVE_OFF_T_64_FSEEKO_FTELLO)
 
 #/* Define to 1 if on MINIX. */
-#cmakedefine _MINIX
+check_symbol_exists(_MINIX "stdio.h" _MINIX)
 
 #/* Define to 2 if the system does not provide POSIX.1 features except with
 #   this defined. */
-#cmakedefine _POSIX_1_SOURCE
+check_symbol_exists(_POSIX_1_SOURCE "stdio.h" _POSIX_1_SOURCE)
 
-if(UNIX AND NOT APPLE)
-  set(_POSIX_SOURCE 1)
-endif()
+#/* Define to 1 if you need to in order for `stat' and other things to work. */
+check_symbol_exists(_POSIX_SOURCE "stdio.h" _POSIX_SOURCE)
 
 #/* Define to empty if `const' does not conform to ANSI C. */
 #cmakedefine const
 
 #/* Define to `__inline__' or `__inline' if that's what the C compiler
 #   calls it, or to nothing if 'inline' is not supported under any name.  */
-#ifndef __cplusplus
-#undef inline
-#endif
+set(inline_KEYWORD ${C_INLINE_KEYWORD})
 
 #/* Define to `int' if <sys/types.h> does not define. */
-#cmakedefine pid_t
+check_type_exists(pid_t pid_t "sys/types.h" int)
 
 
 

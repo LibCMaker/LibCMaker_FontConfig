@@ -296,25 +296,25 @@
 
 
 /* Name of package */
-#define PACKAGE "fontconfig"
+#cmakedefine PACKAGE @PACKAGE@
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT
+#cmakedefine PACKAGE_BUGREPORT @PACKAGE_BUGREPORT@
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "fontconfig"
+#cmakedefine PACKAGE_NAME @PACKAGE_NAME@
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "fontconfig"
+#cmakedefine PACKAGE_STRING @PACKAGE_STRING@
 
 /* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME ""
+#cmakedefine PACKAGE_TARNAME @PACKAGE_TARNAME@
 
 /* Define to the home page for this package. */
-#define PACKAGE_URL ""
+#cmakedefine PACKAGE_URL @PACKAGE_URL@
 
 /* Define to the version of this package. */
-#cmakedefine PACKAGE_VERSION 1
+#cmakedefine PACKAGE_VERSION @PACKAGE_VERSION@
 
 
 
@@ -424,7 +424,7 @@
 /* Define to `__inline__' or `__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
 #ifndef __cplusplus
-#undef inline
+#cmakedefine inline @inline_KEYWORD@
 #endif
 
 /* Define to `int' if <sys/types.h> does not define. */
