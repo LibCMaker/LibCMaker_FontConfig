@@ -1,1 +1,1 @@
-A CMake build scripts for build HarfBuzz library with CMake.
+A CMake build scripts for build FontConfig library with CMake.
