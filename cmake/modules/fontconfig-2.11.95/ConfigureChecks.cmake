@@ -32,6 +32,101 @@ include(CheckSymbolExists)
 include(CheckTypeSize)
 
 
+macro(check_freetype_struct_has_member struct member out_var)
+  file(WRITE "${PROJECT_BINARY_DIR}/try_compile_${struct}_${member}.c"
+  "
+      #include <ft2build.h>
+      #include FT_FREETYPE_H
+
+      int main()
+      {
+         (void)sizeof(((${struct} *)0)->${member});
+         return 0;
+      }
+  ")
+  try_compile(_${out_var}
+    ${PROJECT_BINARY_DIR}/try_compile_${struct}_${member}
+    SOURCES ${PROJECT_BINARY_DIR}/try_compile_${struct}_${member}.c
+    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${FREETYPE_INCLUDE_DIRS}"
+  )
+  if(_${out_var})
+    set(${out_var} 1)
+    set(is_found_msg "found")
+  else()
+    set(is_found_msg "not found")
+  endif()
+  message(STATUS "Looking for ${out_var} - ${is_found_msg}")
+endmacro()
+
+
+macro(check_freetype_symbol_exists name out_var)
+  file(WRITE "${PROJECT_BINARY_DIR}/try_compile_${name}.c"
+  "
+      #include <ft2build.h>
+      #include FT_FREETYPE_H
+      #include FT_BDF_H
+      #include FT_TYPE1_TABLES_H
+      #include FT_FONT_FORMATS_H
+
+      int main(int argc, char** argv)
+      {
+        (void)argv;
+      #ifndef ${name}
+        return ((int*)(&${name}))[argc];
+      #else
+        (void)argc;
+        return 0;
+      #endif
+      }
+  ")
+
+  try_compile(_${out_var}
+    ${PROJECT_BINARY_DIR}/try_compile_${name}
+    SOURCES ${PROJECT_BINARY_DIR}/try_compile_${name}.c
+    CMAKE_FLAGS
+      "-DINCLUDE_DIRECTORIES=${FREETYPE_INCLUDE_DIRS}"
+      "-DLINK_DIRECTORIES=${CMAKE_INSTALL_PREFIX}/lib"
+    LINK_LIBRARIES freetype
+  )
+
+  if(_${out_var})
+    set(${out_var} 1)
+    set(is_found_msg "found")
+  else()
+    set(is_found_msg "not found")
+  endif()
+  
+  message(STATUS "Looking for ${out_var} - ${is_found_msg}")
+endmacro()
+
+
+macro(try_compile_intel_atomic_primitives out_var)
+  # Code from:
+  # https://github.com/harfbuzz/harfbuzz/blob/master/CMakeLists.txt
+
+  ## Atomic ops availability detection
+  file(WRITE "${PROJECT_BINARY_DIR}/try_compile_intel_atomic_primitives.c"
+  "   
+      void memory_barrier (void) { __sync_synchronize (); }
+      int atomic_add (int *i) { return __sync_fetch_and_add (i, 1); }
+      int mutex_trylock (int *m) { return __sync_lock_test_and_set (m, 1); }
+      void mutex_unlock (int *m) { __sync_lock_release (m); }
+      int main () { return 0; }
+  ")
+  try_compile(_${out_var}
+    ${PROJECT_BINARY_DIR}/try_compile_intel_atomic_primitives
+    SOURCES ${PROJECT_BINARY_DIR}/try_compile_intel_atomic_primitives.c
+  )
+  if(_${out_var})
+    set(${out_var} 1)
+    set(is_found_msg "found")
+  else()
+    set(is_found_msg "not found")
+  endif()
+  message(STATUS "Looking for ${out_var} - ${is_found_msg}")
+endmacro()
+
+
 if(WIN32)
   if(MSVC)
     set(CMAKE_REQUIRED_INCLUDES ${CMAKE_INCLUDE_PATH} ${CMAKE_INCLUDE_PATH}/msvc)
@@ -88,90 +183,21 @@ check_function_exists(fstatfs HAVE_FSTATFS)
 
 check_function_exists(fstatvfs HAVE_FSTATVFS)
 
-#check_struct_has_member("struct FT_Bitmap_Size" y_ppem freetype2/ft2build.h
-#  HAVE_FT_BITMAP_SIZE_Y_PPEM LANGUAGE C
-#)
-
-# TODO: to macro check_freetype_struct_has_member
-file(WRITE "${PROJECT_BINARY_DIR}/try_compile_FT_Bitmap_Size_y_ppem.c"
-"
-    #include <ft2build.h>
-    #include FT_FREETYPE_H
-    int main()
-    {
-       (void)sizeof(((FT_Bitmap_Size *)0)->y_ppem);
-       return 0;
-    }
-")
-try_compile(_HAVE_FT_BITMAP_SIZE_Y_PPEM
-  ${PROJECT_BINARY_DIR}/try_compile_FT_Bitmap_Size_y_ppem
-  SOURCES ${PROJECT_BINARY_DIR}/try_compile_FT_Bitmap_Size_y_ppem.c
-  CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${FREETYPE_INCLUDE_DIRS}"
+check_freetype_struct_has_member(
+  FT_Bitmap_Size y_ppem HAVE_FT_BITMAP_SIZE_Y_PPEM
 )
-if(_HAVE_FT_BITMAP_SIZE_Y_PPEM)
-  set(HAVE_FT_BITMAP_SIZE_Y_PPEM 1)
-  set(is_found_msg "found")
-else()
-  set(is_found_msg "not found")
-endif()
 
-message(STATUS "Looking for HAVE_FT_BITMAP_SIZE_Y_PPEM - ${is_found_msg}")
+check_freetype_symbol_exists(FT_Get_BDF_Property HAVE_FT_GET_BDF_PROPERTY)
 
+check_freetype_symbol_exists(FT_Get_Next_Char HAVE_FT_GET_NEXT_CHAR)
 
-macro(check_freetype_symbol_exists name)
-  string(TOUPPER ${name} name_UPPER)
+check_freetype_symbol_exists(FT_Get_PS_Font_Info HAVE_FT_GET_PS_FONT_INFO)
 
-  file(WRITE "${PROJECT_BINARY_DIR}/try_compile_${name}.c"
-  "
-      #include <ft2build.h>
-      #include FT_FREETYPE_H
-      #include FT_BDF_H
-      #include FT_TYPE1_TABLES_H
-      #include FT_FONT_FORMATS_H
+check_freetype_symbol_exists(FT_Get_X11_Font_Format HAVE_FT_GET_X11_FONT_FORMAT)
 
-      int main(int argc, char** argv)
-      {
-        (void)argv;
-      #ifndef ${name}
-        return ((int*)(&${name}))[argc];
-      #else
-        (void)argc;
-        return 0;
-      #endif
-      }
-  ")
+check_freetype_symbol_exists(FT_Has_PS_Glyph_Names HAVE_FT_HAS_PS_GLYPH_NAMES)
 
-  try_compile(_${name_UPPER}
-    ${PROJECT_BINARY_DIR}/try_compile_${name}
-    SOURCES ${PROJECT_BINARY_DIR}/try_compile_${name}.c
-    CMAKE_FLAGS
-      "-DINCLUDE_DIRECTORIES=${FREETYPE_INCLUDE_DIRS}"
-      "-DLINK_DIRECTORIES=${CMAKE_INSTALL_PREFIX}/lib"
-    LINK_LIBRARIES freetype
-  )
-
-  if(_${name_UPPER})
-    set(HAVE_${name_UPPER} 1)
-    set(is_found_msg "found")
-  else()
-    set(is_found_msg "not found")
-  endif()
-  
-  message(STATUS "Looking for HAVE_${name_UPPER} - ${is_found_msg}")
-endmacro()
-
-check_freetype_symbol_exists(FT_Get_BDF_Property)
-
-check_freetype_symbol_exists(FT_Get_Next_Char)
-
-check_freetype_symbol_exists(FT_Get_PS_Font_Info)
-
-check_freetype_symbol_exists(FT_Get_X11_Font_Format)
-
-check_freetype_symbol_exists(FT_Has_PS_Glyph_Names)
-
-check_freetype_symbol_exists(FT_Select_Size)
-
+check_freetype_symbol_exists(FT_Select_Size HAVE_FT_SELECT_SIZE)
 
 check_function_exists(getexecname HAVE_GETEXECNAME)
 
@@ -183,28 +209,7 @@ check_function_exists(getpagesize HAVE_GETPAGESIZE)
 
 check_function_exists(getprogname HAVE_GETPROGNAME)
 
-
-## Atomic ops availability detection
-file(WRITE "${PROJECT_BINARY_DIR}/try_compile_intel_atomic_primitives.c"
-"   
-    void memory_barrier (void) { __sync_synchronize (); }
-    int atomic_add (int *i) { return __sync_fetch_and_add (i, 1); }
-    int mutex_trylock (int *m) { return __sync_lock_test_and_set (m, 1); }
-    void mutex_unlock (int *m) { __sync_lock_release (m); }
-    int main () { return 0; }
-")
-try_compile(_HAVE_INTEL_ATOMIC_PRIMITIVES
-  ${PROJECT_BINARY_DIR}/try_compile_intel_atomic_primitives
-  SOURCES ${PROJECT_BINARY_DIR}/try_compile_intel_atomic_primitives.c
-)
-if(_HAVE_INTEL_ATOMIC_PRIMITIVES)
-  set(HAVE_INTEL_ATOMIC_PRIMITIVES 1)
-  set(is_found_msg "found")
-else()
-  set(is_found_msg "not found")
-endif()
-message(STATUS "Looking for HAVE_INTEL_ATOMIC_PRIMITIVES - ${is_found_msg}")
-
+try_compile_intel_atomic_primitives(HAVE_INTEL_ATOMIC_PRIMITIVES)
 
 check_include_file("inttypes.h" HAVE_INTTYPES_H)
 
