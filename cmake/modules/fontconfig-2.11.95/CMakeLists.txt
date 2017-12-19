@@ -21,7 +21,9 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-# Based on https://github.com/CMakePorts/fontconfig
+# Based on the code from:
+# https://github.com/CMakePorts/fontconfig
+# https://github.com/codicodi/vcpkg/tree/master/ports/fontconfig
 
 cmake_minimum_required(VERSION 3.2)
 
@@ -33,10 +35,63 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
 find_package(EXPAT REQUIRED)
 find_package(Freetype REQUIRED)
 
-include(ConfigureChecks.cmake)
 
-add_subdirectory(conf.d)
-add_subdirectory(fontconfig)
+# Values without quotes.
+set(fc_VERSION "2.11.95")
+# TODO: set these from "-D..."
+set(fc_FONTCONFIG_PATH "${CMAKE_INSTALL_PREFIX}/etc/fonts")
+set(fc_CONFIGDIR "${fc_FONTCONFIG_PATH}/conf.d")
+set(fc_CONFIGDIR_AVAIL "${fc_FONTCONFIG_PATH}/conf.avail")
+set(fc_FC_ADD_FONTS "")
+set(fc_FC_FONTPATH)
+
+if(UNIX AND NOT APPLE)
+  set(fc_FC_CACHEDIR "/var/cache/fontconfig")
+  set(fc_FC_DEFAULT_FONTS "/usr/share/fonts")
+endif()
+
+if(WIN32)
+  # May be "LOCAL_APPDATA_FONTCONFIG_CACHE", "WINDOWSTEMPDIR_FONTCONFIG_CACHE". 
+  #From ChangeLog:  
+  #Date:   Sun Nov 17 22:38:28 2013 +1300
+  #Defaulting <cachedir> to LOCAL_APPDATA_FONTCONFIG_CACHE for Win32 build.
+  #Date:   Tue Nov 13 16:41:55 2007 -0800
+  #"WINDOWSTEMPDIR_FONTCONFIG_CACHE" it is replaced at runtime with a path
+  #under the machine's (or user's) temp folder as returned by GetTempPath().
+  set(fc_FC_CACHEDIR "LOCAL_APPDATA_FONTCONFIG_CACHE")
+#  set(fc_FC_CACHEDIR "%TEMP%\\fc_cache")
+
+  # May be "CUSTOMFONTDIR", "APPSHAREFONTDIR", "WINDOWSFONTDIR".
+  # "APPSHAREFONTDIR" => to the '../share/fonts' relative to binary location.
+  # "CUSTOMFONTDIR"   => to the 'fonts/' directory where the exe is located.
+  # "WINDOWSFONTDIR"  => to the system's font directory.      
+  set(fc_FC_DEFAULT_FONTS "WINDOWSFONTDIR")
+#  set(fc_FC_DEFAULT_FONTS "%WINDIR%\\fonts")
+
+  unset(fc_CONFIGDIR_AVAIL)
+endif()
+
+# Values with quotes.
+set(CONFIGDIR "\"${fc_CONFIGDIR}\"")
+set(FC_ADD_FONTS "\"${fc_FC_ADD_FONTS}\"")
+set(FC_CACHEDIR "\"${fc_FC_CACHEDIR}\"")
+set(FC_DEFAULT_FONTS "\"${fc_FC_DEFAULT_FONTS}\"")
+#set(FC_FONTPATH "\"${fc_FC_FONTPATH}\"")
+set(FC_FONTPATH)
+set(FONTCONFIG_PATH "\"${fc_FONTCONFIG_PATH}\"")
+
+# Values from VCPKG
+#if(WIN32)
+#  set(FC_CACHEDIR WINDOWSTEMPDIR_FONTCONFIG_CACHE)
+#  set(FC_DEFAULT_FONTS WINDOWSFONTDIR)
+#  set(CONFIGDIR ./fonts/conf.d)
+#  set(FC_FONTPATH)
+#  set(FC_ADD_FONTS "\"yes\"")
+#  set(LT_OBJDIR "\".libs/\"")
+#endif()
+
+
+include(ConfigureChecks.cmake)
 
 set(fontconfig_SRCS
   ${PROJECT_SOURCE_DIR}/src/fcarch.c
@@ -82,13 +137,18 @@ set_property(TARGET ${lib_NAME} PROPERTY C_STANDARD 99)
 set_property(TARGET ${lib_NAME} PROPERTY OUTPUT_NAME fontconfig)
 target_compile_definitions(${lib_NAME} PRIVATE
   -DHAVE_CONFIG_H
-  -DFONTCONFIG_PATH="\\"${CMAKE_INSTALL_PREFIX}/etc/fonts\\""
+  -DFONTCONFIG_PATH=${FONTCONFIG_PATH}
+  -DFC_CACHEDIR=${FC_CACHEDIR}
 )
+
 target_include_directories(${lib_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_include_directories(${lib_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${lib_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 if(MSVC)
+#  set_target_properties(${lib_NAME} PROPERTIES
+#    DEFINE_SYMBOL "FcPublic=__declspec(dllexport)"
+#  )
   target_include_directories(${lib_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/msvc)
   target_compile_definitions(${lib_NAME} PRIVATE
     -D_CRT_SECURE_NO_DEPRECATE
@@ -112,3 +172,57 @@ install(TARGETS ${lib_NAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
 )
+
+if(NOT SKIP_INSTALL_HEADERS)
+  install(
+    FILES
+      ${PROJECT_SOURCE_DIR}/fontconfig/fcfreetype.h
+      ${PROJECT_SOURCE_DIR}/fontconfig/fcprivate.h
+      ${PROJECT_SOURCE_DIR}/fontconfig/fontconfig.h
+    DESTINATION include/fontconfig
+  )
+endif()
+
+if(NOT SKIP_INSTALL_TOOLS)
+  configure_file(
+    ${PROJECT_SOURCE_DIR}/fonts.conf.in
+    ${CMAKE_CURRENT_BINARY_DIR}/fonts.conf @ONLY
+  )
+
+  install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/fonts.conf
+    DESTINATION ${fc_FONTCONFIG_PATH}
+  )
+  install(
+    DIRECTORY ${PROJECT_SOURCE_DIR}/conf.d
+    DESTINATION ${fc_CONFIGDIR}
+    FILES_MATCHING PATTERN "*.conf"
+  )
+
+  if(fc_CONFIGDIR_AVAIL)
+    install(
+      DIRECTORY ${PROJECT_SOURCE_DIR}/conf.d
+      DESTINATION ${fc_CONFIGDIR_AVAIL}
+      FILES_MATCHING PATTERN "*.conf"
+    )
+  endif()
+endif()
+
+
+# TODO: Run all below after the invoked install step.
+#if(VCPKG_LIBRARY_LINKAGE STREQUAL dynamic)
+#  foreach(HEADER fcfreetype.h fontconfig.h)
+#    file(
+#      READ ${CURRENT_PACKAGES_DIR}/include/fontconfig/${HEADER}
+#      FC_HEADER
+#    )
+#    string(
+#      REPLACE "#define FcPublic" "#define FcPublic __declspec(dllimport)"
+#      FC_HEADER "${FC_HEADER}"
+#    )
+#    file(
+#      WRITE ${CURRENT_PACKAGES_DIR}/include/fontconfig/${HEADER}
+#      "${FC_HEADER}"
+#    )
+#  endforeach()
+#endif()

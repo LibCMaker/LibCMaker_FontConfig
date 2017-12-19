@@ -33,7 +33,7 @@ include(CheckSymbolExists)
 include(CheckTypeSize)
 
 include(CheckFileOffsetBits)
-include(CMakeTestInline)
+include(CMakeTestInline) # Set C_INLINE_KEYWORD
 include(TestLargeFiles)
 
 
@@ -203,12 +203,13 @@ check_type_size("void *" ALIGNOF_VOID_P)
 #cmakedefine ENABLE_LIBXML2 @ENABLE_LIBXML2@
 
 #/* Additional font directories */
-#cmakedefine FC_ADD_FONTS "yes"
+# FC_ADD_FONTS is set in root CMakeLists.txt.
 
 #/* Architecture prefix to use for cache file names */
 #cmakedefine FC_ARCHITECTURE @FC_ARCHITECTURE@
 
-set(FC_DEFAULT_FONTS "\"%WINDIR%\\fonts\"") # TODO: others OS
+/* System font directory */
+# FC_DEFAULT_FONTS is set in root CMakeLists.txt.
 
 #/* Define to nothing if C supports flexible array members, and to 1 if it does
 #   not. That way, with a declaration like `struct s { int n; double
@@ -426,7 +427,7 @@ set(PACKAGE_BUGREPORT
 set(PACKAGE_NAME "\"fontconfig\"")
 
 #/* Define to the full name and version of this package. */
-set(PACKAGE_STRING "\"fontconfig 2.11.95\"")
+set(PACKAGE_STRING "\"fontconfig ${fc_VERSION}\"")
 
 #/* Define to the one symbol short name of this package. */
 set(PACKAGE_TARNAME "\"fontconfig\"")
@@ -435,7 +436,7 @@ set(PACKAGE_TARNAME "\"fontconfig\"")
 set(PACKAGE_URL "\"\"")
 
 #/* Define to the version of this package. */
-set(PACKAGE_VERSION "\"2.11.95\"")
+set(PACKAGE_VERSION "\"${fc_VERSION}\"")
 
 #/* Define to necessary symbol if this constant uses a non-standard name on
 #   your system. */
@@ -488,7 +489,7 @@ if(Solaris)
 endif()
 
 #/* Version number of package */
-set(VERSION "\"2.11.95\"")
+set(VERSION "\"${fc_VERSION}\"")
 
 #/* Number of bits in a file offset, on hosts where this is settable. */
 check_file_offset_bits()
@@ -512,7 +513,7 @@ check_symbol_exists(_POSIX_SOURCE "stdio.h" _POSIX_SOURCE)
 
 #/* Define to `__inline__' or `__inline' if that's what the C compiler
 #   calls it, or to nothing if 'inline' is not supported under any name.  */
-set(inline_KEYWORD ${C_INLINE_KEYWORD})
+set(inline_KEYWORD ${C_INLINE_KEYWORD}) # Set in include(CMakeTestInline)
 
 #/* Define to `int' if <sys/types.h> does not define. */
 check_type_exists(pid_t pid_t "sys/types.h" int)
@@ -530,28 +531,9 @@ check_function_exists(strrchr HAVE_STRRCHR)
 check_function_exists(strtol HAVE_STRTOL)
 check_function_exists(sysconf HAVE_SYSCONF)
 
-#set(ALIGNOF_DOUBLE 8)
-#set(ALIGNOF_VOID_P ${CMAKE_SIZEOF_VOID_P}) # It is hack.
-#set(HAVE_INTEL_ATOMIC_PRIMITIVES 1)
 
-
-
-#add_definitions(-DHAVE_CONFIG_H)
-#add_definitions(-DFONTCONFIG_PATH="\\"${CMAKE_INSTALL_PREFIX}/etc/fonts\\"")
-
-set(FC_CACHEDIR "\"%TEMP%\\fc_cache\"")
-#TODO: add_definitions(-DFC_CACHEDIR="\"%TEMP%\\fc_cache\"")
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
-)
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/fonts.conf.in.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/fonts.conf
-)
-
-install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/fonts.conf
-  DESTINATION etc/fonts
 )

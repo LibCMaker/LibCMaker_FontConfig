@@ -41,17 +41,13 @@
 #cmakedefine ENABLE_LIBXML2 @ENABLE_LIBXML2@
 
 /* Additional font directories */
-#cmakedefine FC_ADD_FONTS "yes"
+#cmakedefine FC_ADD_FONTS @FC_ADD_FONTS@
 
 /* Architecture prefix to use for cache file names */
 #cmakedefine FC_ARCHITECTURE @FC_ARCHITECTURE@
 
 /* System font directory */
 #cmakedefine FC_DEFAULT_FONTS @FC_DEFAULT_FONTS@
-
-/**** OLD-cmake */
-/* temporary cachedir */
-#define FC_CACHEDIR ${FC_CACHEDIR} /* TODO: remove it */
 
 /* Define to nothing if C supports flexible array members, and to 1 if it does
    not. That way, with a declaration like `struct s { int n; double
@@ -292,9 +288,6 @@
    */
 #cmakedefine LT_OBJDIR @LT_OBJDIR@
 
-
-
-
 /* Name of package */
 #cmakedefine PACKAGE @PACKAGE@
 
@@ -315,9 +308,6 @@
 
 /* Define to the version of this package. */
 #cmakedefine PACKAGE_VERSION @PACKAGE_VERSION@
-
-
-
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
@@ -409,7 +399,7 @@
 #cmakedefine _LARGE_FILES
 
 /* Define to 1 if on MINIX. */
-#cmakedefine _MINIX
+#cmakedefine _MINIX @_MINIX@
 
 /* Define to 2 if the system does not provide POSIX.1 features except with
    this defined. */
@@ -428,6 +418,6 @@
 #endif
 
 /* Define to `int' if <sys/types.h> does not define. */
-#cmakedefine pid_t
+#cmakedefine pid_t @pid_t@
 
 #include "config-fixups.h"
