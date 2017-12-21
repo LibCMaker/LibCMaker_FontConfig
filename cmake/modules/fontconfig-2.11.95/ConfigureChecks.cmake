@@ -58,14 +58,6 @@ list(APPEND CMAKE_REQUIRED_LIBRARIES
   ${FREETYPE_LIBRARIES}
 )
 
-#if(WIN32)
-#  if(MSVC)
-#    set(CMAKE_REQUIRED_INCLUDES ${CMAKE_INCLUDE_PATH} ${CMAKE_INCLUDE_PATH}/msvc)
-#  else()
-#    set(CMAKE_REQUIRED_INCLUDES ${CMAKE_INCLUDE_PATH} ${CMAKE_INCLUDE_PATH}/mingw)
-#  endif()
-#endif()
-
 
 function(check_type_exists type variable header default)
   # Code from:
