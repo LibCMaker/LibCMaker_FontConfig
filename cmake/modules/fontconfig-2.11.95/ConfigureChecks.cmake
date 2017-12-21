@@ -37,6 +37,36 @@ include(CMakeTestInline) # Set C_INLINE_KEYWORD
 include(TestLargeFiles)
 
 
+# Dirent
+list(APPEND CMAKE_REQUIRED_INCLUDES
+  ${DIRENT_INCLUDE_DIR}
+)
+
+# Expat
+list(APPEND CMAKE_REQUIRED_INCLUDES
+  ${EXPAT_INCLUDE_DIR}
+)
+list(APPEND CMAKE_REQUIRED_LIBRARIES
+  ${EXPAT_LIBRARIES}
+)
+
+# FreeType
+list(APPEND CMAKE_REQUIRED_INCLUDES
+  ${FREETYPE_INCLUDE_DIR}
+)
+list(APPEND CMAKE_REQUIRED_LIBRARIES
+  ${FREETYPE_LIBRARIES}
+)
+
+#if(WIN32)
+#  if(MSVC)
+#    set(CMAKE_REQUIRED_INCLUDES ${CMAKE_INCLUDE_PATH} ${CMAKE_INCLUDE_PATH}/msvc)
+#  else()
+#    set(CMAKE_REQUIRED_INCLUDES ${CMAKE_INCLUDE_PATH} ${CMAKE_INCLUDE_PATH}/mingw)
+#  endif()
+#endif()
+
+
 function(check_type_exists type variable header default)
   # Code from:
   # https://github.com/sumoprojects/sumokoin/blob/master/external/unbound/configure_checks.cmake
@@ -68,14 +98,15 @@ macro(check_freetype_struct_has_member struct member out_var)
     ${PROJECT_BINARY_DIR}/try_compile_${struct}_${member}
     SOURCES ${PROJECT_BINARY_DIR}/try_compile_${struct}_${member}.c
     CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${FREETYPE_INCLUDE_DIRS}"
+    OUTPUT_VARIABLE build_OUT
   )
   if(_${out_var})
     set(${out_var} 1)
-    set(is_found_msg "found")
+    message(STATUS "Looking for ${out_var} - found")
   else()
-    set(is_found_msg "not found")
+    message(STATUS "Looking for ${out_var} - not found")
+    message(STATUS ${build_OUT})
   endif()
-  message(STATUS "Looking for ${out_var} - ${is_found_msg}")
 endmacro()
 
 
@@ -105,18 +136,18 @@ macro(check_freetype_symbol_exists name out_var)
     SOURCES ${PROJECT_BINARY_DIR}/try_compile_${name}.c
     CMAKE_FLAGS
       "-DINCLUDE_DIRECTORIES=${FREETYPE_INCLUDE_DIRS}"
-      "-DLINK_DIRECTORIES=${CMAKE_INSTALL_PREFIX}/lib"
-    LINK_LIBRARIES freetype
+#      "-DLINK_DIRECTORIES=${CMAKE_INSTALL_PREFIX}/lib"
+    LINK_LIBRARIES ${FREETYPE_LIBRARIES}
+    OUTPUT_VARIABLE build_OUT
   )
 
   if(_${out_var})
     set(${out_var} 1)
-    set(is_found_msg "found")
+    message(STATUS "Looking for ${out_var} - found")
   else()
-    set(is_found_msg "not found")
+    message(STATUS "Looking for ${out_var} - not found")
+    message(STATUS ${build_OUT})
   endif()
-  
-  message(STATUS "Looking for ${out_var} - ${is_found_msg}")
 endmacro()
 
 
@@ -136,14 +167,15 @@ macro(try_compile_intel_atomic_primitives out_var)
   try_compile(_${out_var}
     ${PROJECT_BINARY_DIR}/try_compile_intel_atomic_primitives
     SOURCES ${PROJECT_BINARY_DIR}/try_compile_intel_atomic_primitives.c
+    OUTPUT_VARIABLE build_OUT
   )
   if(_${out_var})
     set(${out_var} 1)
-    set(is_found_msg "found")
+    message(STATUS "Looking for ${out_var} - found")
   else()
-    set(is_found_msg "not found")
+    message(STATUS "Looking for ${out_var} - not found")
+    message(STATUS ${build_OUT})
   endif()
-  message(STATUS "Looking for ${out_var} - ${is_found_msg}")
 endmacro()
 
 
@@ -164,32 +196,16 @@ macro(try_compile_solaris_atomic_ops out_var)
   try_compile(_${out_var}
     ${CMAKE_CURRENT_BINARY_DIR}/try_compile_solaris_atomic_ops
     SOURCES ${CMAKE_CURRENT_BINARY_DIR}/try_compile_solaris_atomic_ops.c
+    OUTPUT_VARIABLE build_OUT
   )
   if(_${out_var})
     set(${out_var} 1)
-    set(is_found_msg "found")
+    message(STATUS "Looking for ${out_var} - found")
   else()
-    set(is_found_msg "not found")
+    message(STATUS "Looking for ${out_var} - not found")
+    message(STATUS ${build_OUT})
   endif()
-  message(STATUS "Looking for ${out_var} - ${is_found_msg}")
 endmacro()
-
-
-if(WIN32)
-  if(MSVC)
-    set(CMAKE_REQUIRED_INCLUDES ${CMAKE_INCLUDE_PATH} ${CMAKE_INCLUDE_PATH}/msvc)
-  else()
-    set(CMAKE_REQUIRED_INCLUDES ${CMAKE_INCLUDE_PATH} ${CMAKE_INCLUDE_PATH}/mingw)
-  endif()
-endif()
-
-
-list(APPEND CMAKE_REQUIRED_INCLUDES
-  ${EXPAT_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIR}
-)
-list(APPEND CMAKE_REQUIRED_LIBRARIES
-  ${EXPAT_LIBRARIES} ${FREETYPE_LIBRARIES}
-)
 
 
 #/* Define if building universal (internal helper macro) */
@@ -208,7 +224,7 @@ check_type_size("void *" ALIGNOF_VOID_P)
 #/* Architecture prefix to use for cache file names */
 #cmakedefine FC_ARCHITECTURE @FC_ARCHITECTURE@
 
-/* System font directory */
+#/* System font directory */
 # FC_DEFAULT_FONTS is set in root CMakeLists.txt.
 
 #/* Define to nothing if C supports flexible array members, and to 1 if it does

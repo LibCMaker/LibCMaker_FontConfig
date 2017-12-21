@@ -28,8 +28,6 @@ function(cmr_fontconfig_get_download_params
     version
     out_url out_sha out_src_dir_name out_tar_file_name)
 
-  # https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.12.91.tar.bz2
-  # fontconfig-2.12.91.tar.bz2
   set(lib_base_url "https://www.freedesktop.org/software/fontconfig/release")
 
   if(version VERSION_EQUAL "2.11.1.1")

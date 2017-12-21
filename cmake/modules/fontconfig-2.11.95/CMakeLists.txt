@@ -32,6 +32,9 @@ project(${lib_NAME})
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
 
+if(MSVC)
+  find_package(Dirent REQUIRED)
+endif()
 find_package(EXPAT REQUIRED)
 find_package(Freetype REQUIRED)
 
@@ -124,17 +127,9 @@ set(fontconfig_SRCS
   ${PROJECT_SOURCE_DIR}/src/ftglue.c
 )
 
-if(MSVC)
-  list(APPEND fontconfig_SRCS
-    dirent.c
-    mmap.c
-    unistd.c
-  )
-endif()
-
 add_library(${lib_NAME} ${fontconfig_SRCS})
 set_property(TARGET ${lib_NAME} PROPERTY C_STANDARD 99)
-set_property(TARGET ${lib_NAME} PROPERTY OUTPUT_NAME fontconfig)
+#set_property(TARGET ${lib_NAME} PROPERTY OUTPUT_NAME fontconfig)
 target_compile_definitions(${lib_NAME} PRIVATE
   -DHAVE_CONFIG_H
   -DFONTCONFIG_PATH=${FONTCONFIG_PATH}
@@ -149,17 +144,27 @@ if(MSVC)
 #  set_target_properties(${lib_NAME} PROPERTIES
 #    DEFINE_SYMBOL "FcPublic=__declspec(dllexport)"
 #  )
-  target_include_directories(${lib_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/msvc)
-  target_compile_definitions(${lib_NAME} PRIVATE
-    -D_CRT_SECURE_NO_DEPRECATE
-    -D_CRT_NONSTDC_NO_DEPRECATE
-    -wd4018
-    -DWINPOSIX_EXPORT=
-    -DPIC
-  )
+
+#  target_compile_definitions(${lib_NAME} PRIVATE
+#    -D_CRT_SECURE_NO_DEPRECATE
+#    -D_CRT_NONSTDC_NO_DEPRECATE
+#    -wd4018
+#    -DWINPOSIX_EXPORT=
+#    -DPIC
+#  )
+endif()
+
+# Dirent
+if(MSVC)
+  target_include_directories(${lib_NAME} PRIVATE ${DIRENT_INCLUDE_DIR})
 endif()
 
 # Expat
+if(NOT BUILD_SHARED_LIBS)
+  target_compile_definitions(${lib_NAME} PRIVATE
+    -DXML_STATIC
+  )
+endif()
 target_include_directories(${lib_NAME} PRIVATE ${EXPAT_INCLUDE_DIR})
 target_link_libraries(${lib_NAME} PUBLIC ${EXPAT_LIBRARY})
 
@@ -207,22 +212,3 @@ if(NOT SKIP_INSTALL_TOOLS)
     )
   endif()
 endif()
-
-
-# TODO: Run all below after the invoked install step.
-#if(VCPKG_LIBRARY_LINKAGE STREQUAL dynamic)
-#  foreach(HEADER fcfreetype.h fontconfig.h)
-#    file(
-#      READ ${CURRENT_PACKAGES_DIR}/include/fontconfig/${HEADER}
-#      FC_HEADER
-#    )
-#    string(
-#      REPLACE "#define FcPublic" "#define FcPublic __declspec(dllimport)"
-#      FC_HEADER "${FC_HEADER}"
-#    )
-#    file(
-#      WRITE ${CURRENT_PACKAGES_DIR}/include/fontconfig/${HEADER}
-#      "${FC_HEADER}"
-#    )
-#  endforeach()
-#endif()

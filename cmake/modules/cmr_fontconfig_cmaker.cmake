@@ -32,6 +32,15 @@ include(cmr_print_var_value)
 include(cmr_fontconfig_get_download_params)
 
 
+if(MSVC)
+  if(NOT LIBCMAKER_DIRENT_SRC_DIR)
+    cmr_print_fatal_error(
+      "Please set LIBCMAKER_DIRENT_SRC_DIR with path to LibCMaker_Dirent root.")
+  endif()
+  # To use our FindDirent.cmake in FontConfig's CMakeLists.txt
+  list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_DIRENT_SRC_DIR}/cmake")
+endif()
+
 if(NOT LIBCMAKER_EXPAT_SRC_DIR)
   cmr_print_fatal_error(
     "Please set LIBCMAKER_EXPAT_SRC_DIR with path to LibCMaker_Expat root.")
@@ -118,19 +127,18 @@ function(cmr_fontconfig_cmaker)
       COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${PROJECT_SOURCE_DIR}/cmake/modules/fontconfig-${lib_VERSION}
         ${lib_SRC_DIR}/
-#      COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#        ${PROJECT_SOURCE_DIR}/cmake/modules/build_cmake_files-3.1.0.cmake
-#        ${lib_SRC_DIR}/build/cmake/files.cmake
     )
+    if(MSVC)
+      execute_process(
+        COMMAND ${CMAKE_COMMAND} -E copy
+          ${PROJECT_SOURCE_DIR}/cmake/modules/fontconfig-${lib_VERSION}/src/msvc/unistd.h
+          ${lib_SRC_DIR}/src/
+      )
+    endif()
+    
   endif()
   
   
-#  if(ANDROID)
-#    list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_INSTALL_PREFIX}")
-#  endif()
-  
-
-
   #-----------------------------------------------------------------------
   # Configure library.
   #

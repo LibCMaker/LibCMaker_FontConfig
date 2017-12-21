@@ -29,7 +29,7 @@ find_path(FONTCONFIG_INCLUDE_DIR
 )
 
 find_library(FONTCONFIG_LIBRARY
-  NAMES fontconfig
+  NAMES fontconfigd fontconfig
   HINTS
     ENV FONTCONFIG_DIR
   PATH_SUFFIXES

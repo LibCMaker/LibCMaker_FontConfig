@@ -36,4 +36,5 @@ build/
 .project
 
 # For testing
+build_wxms/
 cmake/

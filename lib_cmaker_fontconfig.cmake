@@ -36,6 +36,13 @@ include(cmr_print_debug_message)
 include(cmr_print_var_value)
 
 
+if(MSVC)
+  if(NOT LIBCMAKER_DIRENT_SRC_DIR)
+    cmr_print_fatal_error(
+      "Please set LIBCMAKER_DIRENT_SRC_DIR with path to LibCMaker_Dirent root.")
+  endif()
+endif()
+
 if(NOT LIBCMAKER_EXPAT_SRC_DIR)
   cmr_print_fatal_error(
     "Please set LIBCMAKER_EXPAT_SRC_DIR with path to LibCMaker_Expat root.")
@@ -77,6 +84,9 @@ function(lib_cmaker_fontconfig)
   # -> lib_* ...
 
   cmr_print_var_value(LIBCMAKER_SRC_DIR)
+  if(MSVC)
+    cmr_print_var_value(LIBCMAKER_DIRENT_SRC_DIR)
+  endif()
   cmr_print_var_value(LIBCMAKER_EXPAT_SRC_DIR)
   cmr_print_var_value(LIBCMAKER_FREETYPE_SRC_DIR)
 
@@ -106,6 +116,7 @@ function(lib_cmaker_fontconfig)
   set(lcm_CMAKE_ARGS)
 
   set(LIB_VARS
+    LIBCMAKER_DIRENT_SRC_DIR
     LIBCMAKER_EXPAT_SRC_DIR
     LIBCMAKER_FREETYPE_SRC_DIR
     

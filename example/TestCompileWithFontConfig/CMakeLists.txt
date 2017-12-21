@@ -80,6 +80,41 @@ set(ENV{FONTCONFIG_DIR} "${FONTCONFIG_DIR}")
 
 
 #-----------------------------------------------------------------------
+# Build and install the Dirent.
+#-----------------------------------------------------------------------
+
+if(MSVC)
+  set(DIRENT_lib_VERSION "1.23.1")
+  
+  set(DIRENT_DOWNLOAD_DIR "${PROJECT_BINARY_DIR}")
+  set(DIRENT_UNPACKED_SRC_DIR "${PROJECT_BINARY_DIR}")
+  set(DIRENT_BUILD_DIR "${PROJECT_BINARY_DIR}/build_dirent")
+  
+  set(COPY_DIRENT_CMAKE_BUILD_SCRIPTS ON)
+  
+  # Library specific vars and options.
+  set(DIRENT_DIR "${CMAKE_INSTALL_PREFIX}")
+  set(ENV{DIRENT_DIR} "${DIRENT_DIR}")
+  
+  include(
+    ${PROJECT_SOURCE_DIR}/cmake/LibCMaker_Dirent/lib_cmaker_dirent.cmake)
+  lib_cmaker_dirent(
+    VERSION ${DIRENT_lib_VERSION}
+    DOWNLOAD_DIR ${DIRENT_DOWNLOAD_DIR}
+    UNPACKED_SRC_DIR ${DIRENT_UNPACKED_SRC_DIR}
+    BUILD_DIR ${DIRENT_BUILD_DIR}
+  )
+  
+  set(LIBCMAKER_DIRENT_SRC_DIR
+    "${PROJECT_SOURCE_DIR}/cmake/LibCMaker_Dirent")
+  # To use our FindDirent.cmake
+  list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_DIRENT_SRC_DIR}/cmake")
+  
+  find_package(Dirent REQUIRED)
+endif()
+
+
+#-----------------------------------------------------------------------
 # Build and install the Expat.
 #-----------------------------------------------------------------------
 
@@ -215,13 +250,28 @@ cmr_fontconfig_get_download_params(${lib_VERSION}
 set(lib_SRC_DIR "${UNPACKED_SRC_DIR}/${lib_SRC_DIR_NAME}")
 
 # Build test executables
-add_executable(${PROJECT_NAME}
-  ${lib_SRC_DIR}/fc-query/fc-query.c
-)
+if(MSVC)
+  set(example_SRC fc-query.c)
+else()
+  set(example_SRC ${lib_SRC_DIR}/fc-query/fc-query.c)
+endif()
+
+add_executable(${PROJECT_NAME} ${example_SRC})
 
 # FontConfig
 target_include_directories(${PROJECT_NAME} PRIVATE ${FONTCONFIG_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${FONTCONFIG_LIBRARY})
+
+# unistd.h -- only for examles from FontConfig.
+if(MSVC)
+  set(unistd_INCLUDE_DIR "${lib_SRC_DIR}/src/msvc")
+  target_include_directories(${PROJECT_NAME} PRIVATE ${unistd_INCLUDE_DIR})
+endif()
+
+# Dirent
+if(MSVC)
+  target_include_directories(${PROJECT_NAME} PRIVATE ${DIRENT_INCLUDE_DIR})
+endif()
 
 # Expat
 target_include_directories(${PROJECT_NAME} PRIVATE ${EXPAT_INCLUDE_DIR})
