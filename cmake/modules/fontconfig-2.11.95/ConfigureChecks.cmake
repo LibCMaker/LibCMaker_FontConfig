@@ -207,6 +207,10 @@ endmacro()
 check_type_size("double" ALIGNOF_DOUBLE)
 check_type_size("void *" ALIGNOF_VOID_P)
 
+if(ANDROID AND ANDROID_SYSROOT_ABI STREQUAL "x86")
+  set(ALIGNOF_DOUBLE 4)
+endif()
+
 #/* Use libxml2 instead of Expat */
 #cmakedefine ENABLE_LIBXML2 @ENABLE_LIBXML2@
 
