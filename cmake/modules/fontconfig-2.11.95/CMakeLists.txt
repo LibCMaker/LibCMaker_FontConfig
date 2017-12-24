@@ -71,6 +71,11 @@ if(WIN32)
 #  set(fc_FC_DEFAULT_FONTS "%WINDIR%\\fonts")
 
   unset(fc_CONFIGDIR_AVAIL)
+
+  if(NOT BUILD_SHARED_LIBS)
+    set(fc_FONTCONFIG_FILE "${fc_FONTCONFIG_PATH}/fonts.conf")
+    set(FONTCONFIG_FILE "\"${fc_FONTCONFIG_FILE}\"")
+  endif()
 endif()
 
 # Values with quotes.
@@ -134,6 +139,13 @@ target_compile_definitions(${lib_NAME} PRIVATE
   -DFONTCONFIG_PATH=${FONTCONFIG_PATH}
   -DFC_CACHEDIR=${FC_CACHEDIR}
 )
+
+if(WIN32 AND NOT BUILD_SHARED_LIBS)
+  # Set FONTCONFIG_FILE for static building as FONTCONFIG_PATH is not used.
+  #target_compile_definitions(${lib_NAME} PRIVATE
+  #  -DFONTCONFIG_FILE=${FONTCONFIG_FILE}
+  #)
+endif()
 
 target_include_directories(${lib_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_include_directories(${lib_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
