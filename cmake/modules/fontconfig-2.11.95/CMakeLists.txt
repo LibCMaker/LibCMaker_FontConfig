@@ -189,6 +189,10 @@ if(NOT SKIP_INSTALL_HEADERS)
 endif()
 
 if(NOT SKIP_INSTALL_TOOLS)
+  # Remove quotes for fonts.conf.in.
+  set(FC_CACHEDIR ${fc_FC_CACHEDIR})
+  set(FC_DEFAULT_FONTS ${fc_FC_DEFAULT_FONTS})
+
   configure_file(
     ${PROJECT_SOURCE_DIR}/fonts.conf.in
     ${CMAKE_CURRENT_BINARY_DIR}/fonts.conf @ONLY
@@ -199,14 +203,14 @@ if(NOT SKIP_INSTALL_TOOLS)
     DESTINATION ${fc_FONTCONFIG_PATH}
   )
   install(
-    DIRECTORY ${PROJECT_SOURCE_DIR}/conf.d
+    DIRECTORY ${PROJECT_SOURCE_DIR}/conf.d/
     DESTINATION ${fc_CONFIGDIR}
     FILES_MATCHING PATTERN "*.conf"
   )
 
   if(fc_CONFIGDIR_AVAIL)
     install(
-      DIRECTORY ${PROJECT_SOURCE_DIR}/conf.d
+      DIRECTORY ${PROJECT_SOURCE_DIR}/conf.d/
       DESTINATION ${fc_CONFIGDIR_AVAIL}
       FILES_MATCHING PATTERN "*.conf"
     )
