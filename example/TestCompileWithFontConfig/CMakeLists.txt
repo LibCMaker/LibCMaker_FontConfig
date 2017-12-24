@@ -249,9 +249,9 @@ set(lib_SRC_DIR "${UNPACKED_SRC_DIR}/${lib_SRC_DIR_NAME}")
 
 # Build test executables
 if(MSVC)
-  set(example_SRC fc-query.c)
+  set(example_SRC fc-list.c)
 else()
-  set(example_SRC ${lib_SRC_DIR}/fc-query/fc-query.c)
+  set(example_SRC ${lib_SRC_DIR}/fc-list/fc-list.c)
 endif()
 
 add_executable(${PROJECT_NAME} ${example_SRC})

@@ -41,7 +41,6 @@ find_package(Freetype REQUIRED)
 
 # Values without quotes.
 set(fc_VERSION "2.11.95")
-# TODO: set these from "-D..."
 set(fc_FONTCONFIG_PATH "${CMAKE_INSTALL_PREFIX}/etc/fonts")
 set(fc_CONFIGDIR "${fc_FONTCONFIG_PATH}/conf.d")
 set(fc_CONFIGDIR_AVAIL "${fc_FONTCONFIG_PATH}/conf.avail")
