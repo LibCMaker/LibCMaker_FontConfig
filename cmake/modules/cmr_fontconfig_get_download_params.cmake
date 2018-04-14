@@ -43,6 +43,10 @@ function(cmr_fontconfig_get_download_params
     set(lib_sha
       "4d56b2f88bc99a2e0e2532e1e047f60c7977a2f939d81e76aca0d146b9a6457e")
   endif()
+  if(version VERSION_EQUAL "2.13.0")
+    set(lib_sha
+      "91dde8492155b7f34bb95079e79be92f1df353fcc682c19be90762fd3e12eeb9")
+  endif()
 
   if(NOT DEFINED lib_sha)
     cmr_print_fatal_error("Library version ${version} is not supported.")
