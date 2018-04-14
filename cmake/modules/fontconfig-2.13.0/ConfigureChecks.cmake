@@ -199,6 +199,7 @@ macro(try_compile_solaris_atomic_ops out_var)
   endif()
 endmacro()
 
+# TODO: add checks for '#cmakedefine' vars.
 
 #/* Define if building universal (internal helper macro) */
 #cmakedefine AC_APPLE_UNIVERSAL_BUILD @AC_APPLE_UNIVERSAL_BUILD@
@@ -214,6 +215,10 @@ endif()
 #/* Use libxml2 instead of Expat */
 #cmakedefine ENABLE_LIBXML2 @ENABLE_LIBXML2@
 
+#/* Define to 1 if translation of program messages to the user's native
+#   language is requested. */
+#cmakedefine ENABLE_NLS @ENABLE_NLS@
+
 #/* Additional font directories */
 # FC_ADD_FONTS is set in root CMakeLists.txt.
 
@@ -223,6 +228,9 @@ endif()
 #/* System font directory */
 # FC_DEFAULT_FONTS is set in root CMakeLists.txt.
 
+#/* The type of len parameter of the gperf hash/lookup function */
+set(FC_GPERF_SIZE_T "unsigned int")
+
 #/* Define to nothing if C supports flexible array members, and to 1 if it does
 #   not. That way, with a declaration like `struct s { int n; double
 #   d[FLEXIBLE_ARRAY_MEMBER]; };', the struct hack can be used with pre-C99
@@ -231,6 +239,21 @@ endif()
 #   instead. Don't use 'offsetof (struct s, d[0])', as this doesn't work with
 #   MSVC and with C++ compilers. */
 #define FLEXIBLE_ARRAY_MEMBER
+
+#/* Gettext package */
+#cmakedefine GETTEXT_PACKAGE @GETTEXT_PACKAGE@
+
+#/* Define to 1 if you have the Mac OS X function CFLocaleCopyCurrent in the
+#   CoreFoundation framework. */
+#cmakedefine HAVE_CFLOCALECOPYCURRENT @HAVE_CFLOCALECOPYCURRENT@
+
+#/* Define to 1 if you have the Mac OS X function CFPreferencesCopyAppValue in
+#   the CoreFoundation framework. */
+#cmakedefine HAVE_CFPREFERENCESCOPYAPPVALUE @HAVE_CFPREFERENCESCOPYAPPVALUE@
+
+#/* Define if the GNU dcgettext() function is already present or preinstalled.
+#   */
+#cmakedefine HAVE_DCGETTEXT @HAVE_DCGETTEXT@
 
 check_include_file("dirent.h" HAVE_DIRENT_H)
 
@@ -244,21 +267,15 @@ check_function_exists(fstatfs HAVE_FSTATFS)
 
 check_function_exists(fstatvfs HAVE_FSTATVFS)
 
-check_freetype_struct_has_member(
-  FT_Bitmap_Size y_ppem HAVE_FT_BITMAP_SIZE_Y_PPEM
-)
+check_freetype_symbol_exists(FT_Done_MM_Var HAVE_FT_DONE_MM_VAR)
 
 check_freetype_symbol_exists(FT_Get_BDF_Property HAVE_FT_GET_BDF_PROPERTY)
-
-check_freetype_symbol_exists(FT_Get_Next_Char HAVE_FT_GET_NEXT_CHAR)
 
 check_freetype_symbol_exists(FT_Get_PS_Font_Info HAVE_FT_GET_PS_FONT_INFO)
 
 check_freetype_symbol_exists(FT_Get_X11_Font_Format HAVE_FT_GET_X11_FONT_FORMAT)
 
 check_freetype_symbol_exists(FT_Has_PS_Glyph_Names HAVE_FT_HAS_PS_GLYPH_NAMES)
-
-check_freetype_symbol_exists(FT_Select_Size HAVE_FT_SELECT_SIZE)
 
 check_function_exists(getexecname HAVE_GETEXECNAME)
 
@@ -269,6 +286,10 @@ check_function_exists(getopt_long HAVE_GETOPT_LONG)
 check_function_exists(getpagesize HAVE_GETPAGESIZE)
 
 check_function_exists(getprogname HAVE_GETPROGNAME)
+
+check_function_exists(gettext HAVE_GETTEXT)
+
+check_function_exists(iconv HAVE_ICONV)
 
 try_compile_intel_atomic_primitives(HAVE_INTEL_ATOMIC_PRIMITIVES)
 
@@ -331,22 +352,6 @@ check_function_exists(rand_r HAVE_RAND_R)
 
 check_function_exists(readlink HAVE_READLINK)
 
-check_function_exists(regcomp HAVE_REGCOMP)
-
-check_function_exists(regerror HAVE_REGERROR)
-
-check_function_exists(regexec HAVE_REGEXEC)
-
-check_include_file("regex.h" HAVE_REGEX_H)
-
-check_function_exists(regfree HAVE_REGFREE)
-
-check_function_exists(scandir HAVE_SCANDIR)
-
-#/* Define to 1 if you have the 'scandir' function with int (* compar)(const
-#   void *, const void *) */
-#cmakedefine HAVE_SCANDIR_VOID_P @HAVE_SCANDIR_VOID_P@
-
 check_include_file("sched.h" HAVE_SCHED_H)
 
 check_function_exists(sched_yield HAVE_SCHED_YIELD)
@@ -402,14 +407,6 @@ check_include_file("sys/stat.h" HAVE_SYS_STAT_H)
 check_include_file("sys/types.h" HAVE_SYS_TYPES_H)
 
 check_include_file("sys/vfs.h" HAVE_SYS_VFS_H)
-
-check_freetype_struct_has_member(
-  TT_OS2 usLowerOpticalPointSize HAVE_TT_OS2_USLOWEROPTICALPOINTSIZE
-)
-
-check_freetype_struct_has_member(
-  TT_OS2 usUpperOpticalPointSize HAVE_TT_OS2_USUPPEROPTICALPOINTSIZE
-)
 
 check_include_file("unistd.h" HAVE_UNISTD_H)
 

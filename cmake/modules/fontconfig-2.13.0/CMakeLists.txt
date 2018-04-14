@@ -32,6 +32,7 @@ project(${lib_NAME})
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
 
+# TODO: add libiconv, libintl, libxml2 (== expat ?)
 if(MSVC)
   find_package(Dirent REQUIRED)
 endif()
@@ -39,13 +40,46 @@ find_package(EXPAT REQUIRED)
 find_package(Freetype REQUIRED)
 
 
+# Description from file 'configure' and mapping to vars.
+
+# FONTCONFIG_PATH
+#  --with-baseconfigdir=DIR
+#                          Use DIR to store the base configuration files
+#                          [default=SYSCONFDIR/fonts]
+
+# FC_FONTPATH
+#  --with-default-fonts=DIR
+#                          Use fonts from DIR when config is busted
+
+# FC_ADD_FONTS
+#  --with-add-fonts=DIR1,DIR2,...
+#                          Find additional fonts in DIR1,DIR2,...
+
+# FC_CACHEDIR
+#  --with-cache-dir=DIR    Use DIR to store cache files
+#                          [default=LOCALSTATEDIR/cache/fontconfig]
+
+# FC_TEMPLATEDIR
+#  --with-templatedir=DIR  Use DIR to store the configuration template files
+#                          [default=DATADIR/fontconfig/conf.avail]
+
+# CONFIGDIR
+#  --with-configdir=DIR    Use DIR to store active configuration files
+#                          [default=BASECONFIGDIR/conf.d]
+
 # Values without quotes.
-set(fc_VERSION "2.11.95")
+set(fc_VERSION "2.13.0")
 set(fc_FONTCONFIG_PATH "${CMAKE_INSTALL_PREFIX}/etc/fonts")
-set(fc_CONFIGDIR "${fc_FONTCONFIG_PATH}/conf.d")
-set(fc_CONFIGDIR_AVAIL "${fc_FONTCONFIG_PATH}/conf.avail")
-set(fc_FC_ADD_FONTS "")
+
 set(fc_FC_FONTPATH)
+set(fc_FC_ADD_FONTS "")
+set(fc_FC_CACHEDIR)
+set(fc_FC_TEMPLATEDIR "${fc_FONTCONFIG_PATH}/conf.avail")
+set(fc_CONFIGDIR "${fc_FONTCONFIG_PATH}/conf.d")
+
+set(fc_FC_DEFAULT_FONTS)
+
+set(fc_FONTCONFIG_FILE)
 
 if(UNIX AND NOT APPLE)
   set(fc_FC_CACHEDIR "/var/cache/fontconfig")
@@ -70,8 +104,6 @@ if(WIN32)
   set(fc_FC_DEFAULT_FONTS "WINDOWSFONTDIR")
 #  set(fc_FC_DEFAULT_FONTS "%WINDIR%\\fonts")
 
-  unset(fc_CONFIGDIR_AVAIL)
-
   if(NOT BUILD_SHARED_LIBS)
     set(fc_FONTCONFIG_FILE "${fc_FONTCONFIG_PATH}/fonts.conf")
     set(FONTCONFIG_FILE "\"${fc_FONTCONFIG_FILE}\"")
@@ -79,13 +111,16 @@ if(WIN32)
 endif()
 
 # Values with quotes.
-set(CONFIGDIR "\"${fc_CONFIGDIR}\"")
-set(FC_ADD_FONTS "\"${fc_FC_ADD_FONTS}\"")
-set(FC_CACHEDIR "\"${fc_FC_CACHEDIR}\"")
-set(FC_DEFAULT_FONTS "\"${fc_FC_DEFAULT_FONTS}\"")
+set(FONTCONFIG_PATH "\"${fc_FONTCONFIG_PATH}\"")
+
 #set(FC_FONTPATH "\"${fc_FC_FONTPATH}\"")
 set(FC_FONTPATH)
-set(FONTCONFIG_PATH "\"${fc_FONTCONFIG_PATH}\"")
+set(FC_ADD_FONTS "\"${fc_FC_ADD_FONTS}\"")
+set(FC_CACHEDIR "\"${fc_FC_CACHEDIR}\"")
+set(FC_TEMPLATEDIR "\"${fc_FC_TEMPLATEDIR}\"")
+set(CONFIGDIR "\"${fc_CONFIGDIR}\"")
+
+set(FC_DEFAULT_FONTS "\"${fc_FC_DEFAULT_FONTS}\"")
 
 # Values from VCPKG
 #if(WIN32)
@@ -103,7 +138,6 @@ include(ConfigureChecks.cmake)
 set(fontconfig_SRCS
   ${PROJECT_SOURCE_DIR}/src/fcarch.c
   ${PROJECT_SOURCE_DIR}/src/fcatomic.c
-  ${PROJECT_SOURCE_DIR}/src/fcblanks.c
   ${PROJECT_SOURCE_DIR}/src/fccache.c
   ${PROJECT_SOURCE_DIR}/src/fccfg.c
   ${PROJECT_SOURCE_DIR}/src/fccharset.c
@@ -114,6 +148,7 @@ set(fontconfig_SRCS
   ${PROJECT_SOURCE_DIR}/src/fcformat.c
   ${PROJECT_SOURCE_DIR}/src/fcfreetype.c
   ${PROJECT_SOURCE_DIR}/src/fcfs.c
+  ${PROJECT_SOURCE_DIR}/src/fchash.c
   ${PROJECT_SOURCE_DIR}/src/fcinit.c
   ${PROJECT_SOURCE_DIR}/src/fclang.c
   ${PROJECT_SOURCE_DIR}/src/fclist.c
@@ -122,6 +157,7 @@ set(fontconfig_SRCS
   ${PROJECT_SOURCE_DIR}/src/fcname.c
   ${PROJECT_SOURCE_DIR}/src/fcobjs.c
   ${PROJECT_SOURCE_DIR}/src/fcpat.c
+  ${PROJECT_SOURCE_DIR}/src/fcptrlist.c
   ${PROJECT_SOURCE_DIR}/src/fcrange.c
   ${PROJECT_SOURCE_DIR}/src/fcserialize.c
   ${PROJECT_SOURCE_DIR}/src/fcstat.c
@@ -138,6 +174,7 @@ target_compile_definitions(${lib_NAME} PRIVATE
   -DHAVE_CONFIG_H
   -DFONTCONFIG_PATH=${FONTCONFIG_PATH}
   -DFC_CACHEDIR=${FC_CACHEDIR}
+  -DFC_TEMPLATEDIR=${FC_TEMPLATEDIR}
 )
 
 if(WIN32 AND NOT BUILD_SHARED_LIBS)
@@ -218,12 +255,9 @@ if(NOT SKIP_INSTALL_TOOLS)
     DESTINATION ${fc_CONFIGDIR}
     FILES_MATCHING PATTERN "*.conf"
   )
-
-  if(fc_CONFIGDIR_AVAIL)
-    install(
-      DIRECTORY ${PROJECT_SOURCE_DIR}/conf.d/
-      DESTINATION ${fc_CONFIGDIR_AVAIL}
-      FILES_MATCHING PATTERN "*.conf"
-    )
-  endif()
+  install(
+    DIRECTORY ${PROJECT_SOURCE_DIR}/conf.d/
+    DESTINATION ${fc_FC_TEMPLATEDIR}
+    FILES_MATCHING PATTERN "*.conf"
+  )
 endif()

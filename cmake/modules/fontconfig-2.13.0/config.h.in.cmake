@@ -40,6 +40,10 @@
 /* Use libxml2 instead of Expat */
 #cmakedefine ENABLE_LIBXML2 @ENABLE_LIBXML2@
 
+/* Define to 1 if translation of program messages to the user's native
+   language is requested. */
+#cmakedefine ENABLE_NLS @ENABLE_NLS@
+
 /* Additional font directories */
 #cmakedefine FC_ADD_FONTS @FC_ADD_FONTS@
 
@@ -49,6 +53,9 @@
 /* System font directory */
 #cmakedefine FC_DEFAULT_FONTS @FC_DEFAULT_FONTS@
 
+/* The type of len parameter of the gperf hash/lookup function */
+#cmakedefine FC_GPERF_SIZE_T @FC_GPERF_SIZE_T@
+
 /* Define to nothing if C supports flexible array members, and to 1 if it does
    not. That way, with a declaration like `struct s { int n; double
    d[FLEXIBLE_ARRAY_MEMBER]; };', the struct hack can be used with pre-C99
@@ -57,6 +64,21 @@
    instead. Don't use 'offsetof (struct s, d[0])', as this doesn't work with
    MSVC and with C++ compilers. */
 #define FLEXIBLE_ARRAY_MEMBER
+
+/* Gettext package */
+#cmakedefine GETTEXT_PACKAGE @GETTEXT_PACKAGE@
+
+/* Define to 1 if you have the Mac OS X function CFLocaleCopyCurrent in the
+   CoreFoundation framework. */
+#cmakedefine HAVE_CFLOCALECOPYCURRENT @HAVE_CFLOCALECOPYCURRENT@
+
+/* Define to 1 if you have the Mac OS X function CFPreferencesCopyAppValue in
+   the CoreFoundation framework. */
+#cmakedefine HAVE_CFPREFERENCESCOPYAPPVALUE @HAVE_CFPREFERENCESCOPYAPPVALUE@
+
+/* Define if the GNU dcgettext() function is already present or preinstalled.
+   */
+#cmakedefine HAVE_DCGETTEXT @HAVE_DCGETTEXT@
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
@@ -77,14 +99,11 @@
 /* Define to 1 if you have the `fstatvfs' function. */
 #cmakedefine HAVE_FSTATVFS @HAVE_FSTATVFS@
 
-/* FT_Bitmap_Size structure includes y_ppem field */
-#cmakedefine HAVE_FT_BITMAP_SIZE_Y_PPEM @HAVE_FT_BITMAP_SIZE_Y_PPEM@
+/* Define to 1 if you have the `FT_Done_MM_Var' function. */
+#cmakedefine HAVE_FT_DONE_MM_VAR @HAVE_FT_DONE_MM_VAR@
 
 /* Define to 1 if you have the `FT_Get_BDF_Property' function. */
 #cmakedefine HAVE_FT_GET_BDF_PROPERTY @HAVE_FT_GET_BDF_PROPERTY@
-
-/* Define to 1 if you have the `FT_Get_Next_Char' function. */
-#cmakedefine HAVE_FT_GET_NEXT_CHAR @HAVE_FT_GET_NEXT_CHAR@
 
 /* Define to 1 if you have the `FT_Get_PS_Font_Info' function. */
 #cmakedefine HAVE_FT_GET_PS_FONT_INFO @HAVE_FT_GET_PS_FONT_INFO@
@@ -94,9 +113,6 @@
 
 /* Define to 1 if you have the `FT_Has_PS_Glyph_Names' function. */
 #cmakedefine HAVE_FT_HAS_PS_GLYPH_NAMES @HAVE_FT_HAS_PS_GLYPH_NAMES@
-
-/* Define to 1 if you have the `FT_Select_Size' function. */
-#cmakedefine HAVE_FT_SELECT_SIZE @HAVE_FT_SELECT_SIZE@
 
 /* Define to 1 if you have the `getexecname' function. */
 #cmakedefine HAVE_GETEXECNAME @HAVE_GETEXECNAME@
@@ -112,6 +128,12 @@
 
 /* Define to 1 if you have the `getprogname' function. */
 #cmakedefine HAVE_GETPROGNAME @HAVE_GETPROGNAME@
+
+/* Define if the GNU gettext() function is already present or preinstalled. */
+#cmakedefine HAVE_GETTEXT @HAVE_GETTEXT@
+
+/* Define if you have the iconv() function and it works. */
+#cmakedefine HAVE_ICONV @HAVE_ICONV@
 
 /* Have Intel __sync_* atomic primitives */
 #cmakedefine HAVE_INTEL_ATOMIC_PRIMITIVES @HAVE_INTEL_ATOMIC_PRIMITIVES@
@@ -169,28 +191,6 @@
 
 /* Define to 1 if you have the `readlink' function. */
 #cmakedefine HAVE_READLINK @HAVE_READLINK@
-
-/* Define to 1 if you have the `regcomp' function. */
-#cmakedefine HAVE_REGCOMP @HAVE_REGCOMP@
-
-/* Define to 1 if you have the `regerror' function. */
-#cmakedefine HAVE_REGERROR @HAVE_REGERROR@
-
-/* Define to 1 if you have the `regexec' function. */
-#cmakedefine HAVE_REGEXEC @HAVE_REGEXEC@
-
-/* Define to 1 if you have the <regex.h> header file. */
-#cmakedefine HAVE_REGEX_H @HAVE_REGEX_H@
-
-/* Define to 1 if you have the `regfree' function. */
-#cmakedefine HAVE_REGFREE @HAVE_REGFREE@
-
-/* Define to 1 if you have the 'scandir' function. */
-#cmakedefine HAVE_SCANDIR @HAVE_SCANDIR@
-
-/* Define to 1 if you have the 'scandir' function with int (* compar)(const
-   void *, const void *) */
-#cmakedefine HAVE_SCANDIR_VOID_P @HAVE_SCANDIR_VOID_P@
 
 /* Define to 1 if you have the <sched.h> header file. */
 #cmakedefine HAVE_SCHED_H @HAVE_SCHED_H@
@@ -260,12 +260,6 @@
 /* Define to 1 if you have the <sys/vfs.h> header file. */
 #cmakedefine HAVE_SYS_VFS_H @HAVE_SYS_VFS_H@
 
-/* Define to 1 if `usLowerOpticalPointSize' is a member of `TT_OS2'. */
-#cmakedefine HAVE_TT_OS2_USLOWEROPTICALPOINTSIZE @HAVE_TT_OS2_USLOWEROPTICALPOINTSIZE@
-
-/* Define to 1 if `usUpperOpticalPointSize' is a member of `TT_OS2'. */
-#cmakedefine HAVE_TT_OS2_USUPPEROPTICALPOINTSIZE @HAVE_TT_OS2_USUPPEROPTICALPOINTSIZE@
-
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H @HAVE_UNISTD_H@
 
@@ -277,15 +271,14 @@
 
 /* Use xmlparse.h instead of expat.h */
 #cmakedefine HAVE_XMLPARSE_H @HAVE_XMLPARSE_H@
- 
+
 /* Define to 1 if you have the `XML_SetDoctypeDeclHandler' function. */
 #cmakedefine HAVE_XML_SETDOCTYPEDECLHANDLER @HAVE_XML_SETDOCTYPEDECLHANDLER@
 
 /* Define to 1 if you have the `_mktemp_s' function. */
 #cmakedefine HAVE__MKTEMP_S @HAVE__MKTEMP_S@
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 #cmakedefine LT_OBJDIR @LT_OBJDIR@
 
 /* Name of package */

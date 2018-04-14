@@ -51,6 +51,12 @@
 #include "fcmutex.h"
 #include "fcatomic.h"
 
+/* https://stackoverflow.com/a/35368387 */
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+
 #ifndef FC_CONFIG_PATH
 #define FC_CONFIG_PATH "fonts.conf"
 #endif
