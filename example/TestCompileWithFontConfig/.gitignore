@@ -31,10 +31,9 @@
 # Eclipse
 .externalToolBuilders/
 .settings/
-build/
+build*/
 .cproject
 .project
 
 # For testing
-build_wxms/
 cmake/
