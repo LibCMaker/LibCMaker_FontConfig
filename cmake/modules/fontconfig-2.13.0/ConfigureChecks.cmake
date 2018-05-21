@@ -58,6 +58,11 @@ list(APPEND CMAKE_REQUIRED_LIBRARIES
   ${FREETYPE_LIBRARIES}
 )
 
+# TODO: this is hack, the quotes must remain.
+string(REPLACE "\"" "" cxx_std_libs "${CMAKE_CXX_STANDARD_LIBRARIES}")
+list(APPEND CMAKE_REQUIRED_LIBRARIES
+  ${cxx_std_libs}
+)
 
 function(check_type_exists type variable header default)
   # Code from:
@@ -90,6 +95,7 @@ macro(check_freetype_struct_has_member struct member out_var)
     ${PROJECT_BINARY_DIR}/try_compile_${struct}_${member}
     SOURCES ${PROJECT_BINARY_DIR}/try_compile_${struct}_${member}.c
     CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${FREETYPE_INCLUDE_DIRS}"
+#    LINK_LIBRARIES ${cxx_std_libs}
     OUTPUT_VARIABLE build_OUT
   )
   if(_${out_var})
@@ -129,7 +135,7 @@ macro(check_freetype_symbol_exists name out_var)
     CMAKE_FLAGS
       "-DINCLUDE_DIRECTORIES=${FREETYPE_INCLUDE_DIRS}"
 #      "-DLINK_DIRECTORIES=${CMAKE_INSTALL_PREFIX}/lib"
-    LINK_LIBRARIES ${FREETYPE_LIBRARIES}
+    LINK_LIBRARIES ${FREETYPE_LIBRARIES} ${cxx_std_libs}
     OUTPUT_VARIABLE build_OUT
   )
 
@@ -159,6 +165,7 @@ macro(try_compile_intel_atomic_primitives out_var)
   try_compile(_${out_var}
     ${PROJECT_BINARY_DIR}/try_compile_intel_atomic_primitives
     SOURCES ${PROJECT_BINARY_DIR}/try_compile_intel_atomic_primitives.c
+#    LINK_LIBRARIES ${cxx_std_libs}
     OUTPUT_VARIABLE build_OUT
   )
   if(_${out_var})
@@ -188,6 +195,7 @@ macro(try_compile_solaris_atomic_ops out_var)
   try_compile(_${out_var}
     ${CMAKE_CURRENT_BINARY_DIR}/try_compile_solaris_atomic_ops
     SOURCES ${CMAKE_CURRENT_BINARY_DIR}/try_compile_solaris_atomic_ops.c
+#    LINK_LIBRARIES ${cxx_std_libs}
     OUTPUT_VARIABLE build_OUT
   )
   if(_${out_var})
