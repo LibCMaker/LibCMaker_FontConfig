@@ -27,6 +27,7 @@
 
 include(CheckIncludeFile)
 include(CheckIncludeFiles)
+# TODO: replace check_function_exists() with check_symbol_exists()
 include(CheckFunctionExists)
 include(CheckStructHasMember)
 include(CheckSymbolExists)
@@ -271,13 +272,15 @@ check_include_file("dirent.h" HAVE_DIRENT_H)
 
 check_include_file("dlfcn.h" HAVE_DLFCN_H)
 
+# TODO: replace check_function_exists() with check_symbol_exists()
+# TODO: What is header file for _doprnt to check_symbol_exists()?
 check_function_exists(_doprnt HAVE_DOPRNT)
 
 check_include_file("fcntl.h" HAVE_FCNTL_H)
 
-check_function_exists(fstatfs HAVE_FSTATFS)
+check_symbol_exists("fstatfs" "sys/vfs.h" HAVE_FSTATFS)
 
-check_function_exists(fstatvfs HAVE_FSTATVFS)
+check_symbol_exists("fstatvfs" "sys/statvfs.h" HAVE_FSTATVFS)
 
 check_freetype_symbol_exists(FT_Done_MM_Var HAVE_FT_DONE_MM_VAR)
 
@@ -289,43 +292,43 @@ check_freetype_symbol_exists(FT_Get_X11_Font_Format HAVE_FT_GET_X11_FONT_FORMAT)
 
 check_freetype_symbol_exists(FT_Has_PS_Glyph_Names HAVE_FT_HAS_PS_GLYPH_NAMES)
 
-check_function_exists(getexecname HAVE_GETEXECNAME)
+check_symbol_exists("getexecname" "stdlib.h" HAVE_GETEXECNAME)
 
-check_function_exists(getopt HAVE_GETOPT)
+check_symbol_exists("getopt" "unistd.h" HAVE_GETOPT)
 
-check_function_exists(getopt_long HAVE_GETOPT_LONG)
+check_symbol_exists("getopt_long" "getopt.h" HAVE_GETOPT_LONG)
 
-check_function_exists(getpagesize HAVE_GETPAGESIZE)
+check_symbol_exists("getpagesize" "unistd.h" HAVE_GETPAGESIZE)
 
-check_function_exists(getprogname HAVE_GETPROGNAME)
+check_symbol_exists("getprogname" "stdlib.h" HAVE_GETPROGNAME)
 
-check_function_exists(gettext HAVE_GETTEXT)
+check_symbol_exists("gettext" "libintl.h" HAVE_GETTEXT)
 
-check_function_exists(iconv HAVE_ICONV)
+check_symbol_exists("iconv" "iconv.h" HAVE_ICONV)
 
 try_compile_intel_atomic_primitives(HAVE_INTEL_ATOMIC_PRIMITIVES)
 
 check_include_file("inttypes.h" HAVE_INTTYPES_H)
 
-check_function_exists(link HAVE_LINK)
+check_symbol_exists("link" "unistd.h" HAVE_LINK)
 
-check_function_exists(lrand48 HAVE_LRAND48)
+check_symbol_exists("lrand48" "stdlib.h" HAVE_LRAND48)
 
-check_function_exists(lstat HAVE_LSTAT)
+check_symbol_exists("lstat" "sys/types.h;sys/stat.h;unistd.h" HAVE_LSTAT)
 
 check_include_file("memory.h" HAVE_MEMORY_H)
 
-check_function_exists(mkdtemp HAVE_MKDTEMP)
+check_symbol_exists("mkdtemp" "stdlib.h" HAVE_MKDTEMP)
 
-check_function_exists(mkostemp HAVE_MKOSTEMP)
+check_symbol_exists("mkostemp" "stdlib.h" HAVE_MKOSTEMP)
 
-check_function_exists(mkstemp HAVE_MKSTEMP)
+check_symbol_exists("mkstemp" "stdlib.h" HAVE_MKSTEMP)
 
-check_function_exists(mmap HAVE_MMAP)
+check_symbol_exists("mmap" "sys/mman.h" HAVE_MMAP)
 
 check_include_file("ndir.h" HAVE_NDIR_H)
 
-check_function_exists(posix_fadivse HAVE_POSIX_FADVISE)
+check_symbol_exists("posix_fadvise" "fcntl.h" HAVE_POSIX_FADVISE)
 
 #/* Have POSIX threads */
 #/* Have PTHREAD_PRIO_INHERIT. */
@@ -354,19 +357,19 @@ endif()
 #/* Have PTHREAD_PRIO_INHERIT. */
 #check_symbol_exists(PTHREAD_PRIO_INHERIT "pthread.h" HAVE_PTHREAD_PRIO_INHERIT)
 
-check_function_exists(rand HAVE_RAND)
+check_symbol_exists("rand" "stdlib.h" HAVE_RAND)
 
-check_function_exists(random HAVE_RANDOM)
+check_symbol_exists("random" "stdlib.h" HAVE_RANDOM)
 
-check_function_exists(random_r HAVE_RANDOM_R)
+check_symbol_exists("random_r" "stdlib.h" HAVE_RANDOM_R)
 
-check_function_exists(rand_r HAVE_RAND_R)
+check_symbol_exists("rand_r" "stdlib.h" HAVE_RAND_R)
 
-check_function_exists(readlink HAVE_READLINK)
+check_symbol_exists("readlink" "unistd.h" HAVE_READLINK)
 
 check_include_file("sched.h" HAVE_SCHED_H)
 
-check_function_exists(sched_yield HAVE_SCHED_YIELD)
+check_symbol_exists("sched_yield" "sched.h" HAVE_SCHED_YIELD)
 
 try_compile_solaris_atomic_ops(HAVE_SOLARIS_ATOMIC_OPS)
 
@@ -422,16 +425,18 @@ check_include_file("sys/vfs.h" HAVE_SYS_VFS_H)
 
 check_include_file("unistd.h" HAVE_UNISTD_H)
 
-check_function_exists(vprintf HAVE_VPRINTF)
+check_symbol_exists("vprintf" "stdarg.h" HAVE_VPRINTF)
 
 #/* Can use #warning in C files */
 #cmakedefine HAVE_WARNING_CPP_DIRECTIVE @HAVE_WARNING_CPP_DIRECTIVE@
 
 check_include_file("xmlparse.h" HAVE_XMLPARSE_H)
 
+# TODO: replace check_function_exists() with check_symbol_exists()
+# TODO: What is header file for XML_SetDoctypeDeclHandler to check_symbol_exists()?
 check_function_exists(XML_SetDoctypeDeclHandler HAVE_XML_SETDOCTYPEDECLHANDLER)
 
-check_function_exists(_mktemp_s HAVE__MKTEMP_S)
+check_symbol_exists("_mktemp_s" "io.h" HAVE__MKTEMP_S)
 
 #/* Define to the sub-directory in which libtool stores uninstalled libraries.
 #   */
@@ -541,16 +546,16 @@ check_type_exists(pid_t pid_t "sys/types.h" int)
 
 
 
-check_function_exists(chsize HAVE_CHSIZE)
-check_function_exists(ftruncate HAVE_FTRUNCATE)
-check_function_exists(geteuid HAVE_GETEUID)
-check_function_exists(getuid HAVE_GETUID)
-check_function_exists(memmove HAVE_MEMMOVE)
-check_function_exists(memset HAVE_MEMSET)
-check_function_exists(strchr HAVE_STRCHR)
-check_function_exists(strrchr HAVE_STRRCHR)
-check_function_exists(strtol HAVE_STRTOL)
-check_function_exists(sysconf HAVE_SYSCONF)
+check_symbol_exists("chsize" "io.h" HAVE_CHSIZE)
+check_symbol_exists("ftruncate" "unistd.h;sys/types.h" HAVE_FTRUNCATE)
+check_symbol_exists("geteuid" "unistd.h;sys/types.h" HAVE_GETEUID)
+check_symbol_exists("getuid" "unistd.h;sys/types.h" HAVE_GETUID)
+check_symbol_exists("memmove" "string.h" HAVE_MEMMOVE)
+check_symbol_exists("memset" "string.h" HAVE_MEMSET)
+check_symbol_exists("strchr" "string.h" HAVE_STRCHR)
+check_symbol_exists("strrchr" "string.h" HAVE_STRRCHR)
+check_symbol_exists("strtol" "stdlib.h" HAVE_STRTOL)
+check_symbol_exists("sysconf" "unistd.h" HAVE_SYSCONF)
 
 
 
