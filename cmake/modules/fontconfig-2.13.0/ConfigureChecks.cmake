@@ -23,6 +23,8 @@
 
 # Based on https://github.com/CMakePorts/fontconfig
 
+# TODO: take options from 'configure.ac' and other original files.
+
 # Checking Headers and Functions for fontconfig
 
 include(CheckIncludeFile)
@@ -60,7 +62,7 @@ list(APPEND CMAKE_REQUIRED_LIBRARIES
 )
 
 # TODO: this is hack, the quotes must remain.
-string(REPLACE "\"" "" cxx_std_libs "${CMAKE_CXX_STANDARD_LIBRARIES}")
+string(REPLACE "\"" "" cxx_std_libs "${CMAKE_CXX_STANDARD_LIBRARIES}")  # Documented in CMake 3.6
 list(APPEND CMAKE_REQUIRED_LIBRARIES
   ${cxx_std_libs}
 )

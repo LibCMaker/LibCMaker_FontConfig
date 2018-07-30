@@ -21,7 +21,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.3)
 
 project(LibCMaker_FontConfig_Compile_Test C)
 
@@ -70,9 +70,6 @@ set(FONTCONFIG_BUILD_DIR    "${PROJECT_BINARY_DIR}/build_fontconfig")
 
 set(COPY_FONTCONFIG_CMAKE_BUILD_SCRIPTS ON)
 
-set(FONTCONFIG_DIR "${CMAKE_INSTALL_PREFIX}")
-set(ENV{FONTCONFIG_DIR} "${FONTCONFIG_DIR}")
-
 # Library specific vars and options.
 
 
@@ -88,9 +85,6 @@ if(MSVC)
   
   set(COPY_DIRENT_CMAKE_BUILD_SCRIPTS ON)
   
-  set(DIRENT_DIR "${CMAKE_INSTALL_PREFIX}")
-  set(ENV{DIRENT_DIR} "${DIRENT_DIR}")
-
   # Library specific vars and options.
   
   include(
@@ -119,9 +113,6 @@ set(EXPAT_lib_VERSION   "2.2.5")
 set(EXPAT_DOWNLOAD_DIR  "${PROJECT_BINARY_DIR}")
 set(EXPAT_UNPACKED_DIR  "${PROJECT_BINARY_DIR}")
 set(EXPAT_BUILD_DIR     "${PROJECT_BINARY_DIR}/build_expat")
-
-set(EXPAT_DIR "${CMAKE_INSTALL_PREFIX}")
-set(ENV{EXPAT_DIR} "${EXPAT_DIR}")
 
 # Library specific vars and options.
 
@@ -171,9 +162,6 @@ set(FT_lib_VERSION  "2.8.1")
 set(FT_DOWNLOAD_DIR "${PROJECT_BINARY_DIR}")
 set(FT_UNPACKED_DIR "${PROJECT_BINARY_DIR}")
 set(FT_BUILD_DIR    "${PROJECT_BINARY_DIR}/build_freetype")
-
-set(FREETYPE_DIR "${CMAKE_INSTALL_PREFIX}")
-set(ENV{FREETYPE_DIR} "${FREETYPE_DIR}")
 
 # Library specific vars.
 set(FREETYPE_NO_DIST ON)

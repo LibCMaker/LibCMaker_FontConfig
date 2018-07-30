@@ -25,7 +25,7 @@
 # https://github.com/CMakePorts/fontconfig
 # https://github.com/codicodi/vcpkg/tree/master/ports/fontconfig
 
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.3)
 
 set(lib_NAME "fontconfig")
 project(${lib_NAME})
