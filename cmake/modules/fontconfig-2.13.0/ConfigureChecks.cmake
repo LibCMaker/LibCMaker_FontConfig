@@ -361,7 +361,13 @@ endif()
 
 check_symbol_exists("rand" "stdlib.h" HAVE_RAND)
 
-check_symbol_exists("random" "stdlib.h" HAVE_RANDOM)
+check_symbol_exists("initstate" "stdlib.h" HAVE_INITSTATE)
+check_symbol_exists("setstate" "stdlib.h" HAVE_SETSTATE)
+
+# Android has not 'initstate' and 'setstate' in API < 21.
+if(HAVE_INITSTATE AND HAVE_SETSTATE)
+  check_symbol_exists("random" "stdlib.h" HAVE_RANDOM)
+endif()
 
 check_symbol_exists("random_r" "stdlib.h" HAVE_RANDOM_R)
 
@@ -519,12 +525,14 @@ endif()
 #/* Version number of package */
 set(VERSION "\"${fc_VERSION}\"")
 
-#/* Number of bits in a file offset, on hosts where this is settable. */
-check_file_offset_bits()
-
-#/* Define for large files, on AIX-style hosts. */
-#test_large_files() set _LARGE_FILES to 1 if success.
-test_large_files(HAVE_OFF_T_64_FSEEKO_FTELLO)
+if(NOT ANDROID)
+  #/* Number of bits in a file offset, on hosts where this is settable. */
+  check_file_offset_bits()
+  
+  #/* Define for large files, on AIX-style hosts. */
+  #test_large_files() set _LARGE_FILES to 1 if success.
+  test_large_files(HAVE_OFF_T_64_FSEEKO_FTELLO)
+endif()
 
 #/* Define to 1 if on MINIX. */
 check_symbol_exists(_MINIX "stdio.h" _MINIX)
