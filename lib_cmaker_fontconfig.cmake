@@ -60,23 +60,23 @@ function(lib_cmaker_fontconfig)
 
   if(MSVC)
     if(NOT LIBCMAKER_DIRENT_SRC_DIR)
-      cmr_print_fatal_error(
+      cmr_print_error(
         "Please set LIBCMAKER_DIRENT_SRC_DIR with path to LibCMaker_Dirent root.")
     endif()
-    cmr_print_var_value(LIBCMAKER_DIRENT_SRC_DIR)
+    cmr_print_value(LIBCMAKER_DIRENT_SRC_DIR)
   endif()
 
   if(NOT LIBCMAKER_EXPAT_SRC_DIR)
-    cmr_print_fatal_error(
+    cmr_print_error(
       "Please set LIBCMAKER_EXPAT_SRC_DIR with path to LibCMaker_Expat root.")
   endif()
-  cmr_print_var_value(LIBCMAKER_EXPAT_SRC_DIR)
+  cmr_print_value(LIBCMAKER_EXPAT_SRC_DIR)
 
   if(NOT LIBCMAKER_FREETYPE_SRC_DIR)
-    cmr_print_fatal_error(
+    cmr_print_error(
       "Please set LIBCMAKER_FREETYPE_SRC_DIR with path to LibCMaker_FreeType root.")
   endif()
-  cmr_print_var_value(LIBCMAKER_FREETYPE_SRC_DIR)
+  cmr_print_value(LIBCMAKER_FREETYPE_SRC_DIR)
 
 
   #-----------------------------------------------------------------------
