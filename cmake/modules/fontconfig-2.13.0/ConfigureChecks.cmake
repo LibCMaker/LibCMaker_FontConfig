@@ -62,7 +62,9 @@ list(APPEND CMAKE_REQUIRED_LIBRARIES
 )
 
 # TODO: this is hack, the quotes must remain.
-string(REPLACE "\"" "" cxx_std_libs "${CMAKE_CXX_STANDARD_LIBRARIES}")  # Documented in CMake 3.6
+# CMAKE_CXX_STANDARD_LIBRARIES was documented in CMake 3.6.
+string(REPLACE "\"" "" cxx_std_libs ${CMAKE_CXX_STANDARD_LIBRARIES})
+string(REPLACE " " ";" cxx_std_libs ${cxx_std_libs})
 list(APPEND CMAKE_REQUIRED_LIBRARIES
   ${cxx_std_libs}
 )
@@ -71,7 +73,7 @@ function(check_type_exists type variable header default)
   # Code from:
   # https://github.com/sumoprojects/sumokoin/blob/master/external/unbound/configure_checks.cmake
   set(CMAKE_EXTRA_INCLUDE_FILES "${header}")
-  check_type_size("${type}" "${variable}")
+  check_type_size("${type}" "${variable}" LANGUAGE C)
 
   if(NOT HAVE_${type})
     set("${variable}" "${default}" PARENT_SCOPE)
@@ -220,8 +222,8 @@ endmacro()
 #cmakedefine AC_APPLE_UNIVERSAL_BUILD @AC_APPLE_UNIVERSAL_BUILD@
 
 # TODO: fix this alignof tests
-check_type_size("double" ALIGNOF_DOUBLE)
-check_type_size("void *" ALIGNOF_VOID_P)
+check_type_size("double" ALIGNOF_DOUBLE LANGUAGE C)
+check_type_size("void *" ALIGNOF_VOID_P LANGUAGE C)
 
 if(ANDROID AND ANDROID_SYSROOT_ABI STREQUAL "x86")
   set(ALIGNOF_DOUBLE 4)
@@ -482,17 +484,17 @@ if(_PTHREAD_CREATE_JOINABLE)
 endif()
 
 
-check_type_size("char"   SIZEOF_CHAR BUILTIN_TYPES_ONLY)
+check_type_size("char"   SIZEOF_CHAR BUILTIN_TYPES_ONLY LANGUAGE C)
 
-check_type_size("int"    SIZEOF_INT BUILTIN_TYPES_ONLY)
+check_type_size("int"    SIZEOF_INT BUILTIN_TYPES_ONLY LANGUAGE C)
 
-check_type_size("long"   SIZEOF_LONG BUILTIN_TYPES_ONLY)
+check_type_size("long"   SIZEOF_LONG BUILTIN_TYPES_ONLY LANGUAGE C)
 
-check_type_size("short"  SIZEOF_SHORT BUILTIN_TYPES_ONLY)
+check_type_size("short"  SIZEOF_SHORT BUILTIN_TYPES_ONLY LANGUAGE C)
 
-check_type_size("void*"  SIZEOF_VOIDP BUILTIN_TYPES_ONLY)
+check_type_size("void*"  SIZEOF_VOIDP BUILTIN_TYPES_ONLY LANGUAGE C)
 
-check_type_size("void *" SIZEOF_VOID_P BUILTIN_TYPES_ONLY)
+check_type_size("void *" SIZEOF_VOID_P BUILTIN_TYPES_ONLY LANGUAGE C)
 
 #/* Define to 1 if you have the ANSI C header files. */
 check_include_files("stdlib.h;stdarg.h;string.h;float.h" STDC_HEADERS)
