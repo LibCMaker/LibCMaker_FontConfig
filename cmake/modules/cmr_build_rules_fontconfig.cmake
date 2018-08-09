@@ -33,7 +33,7 @@
     # To use our FindDirent.cmake in FontConfig's CMakeLists.txt
     list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_DIRENT_SRC_DIR}/cmake")
   endif()
-  
+
   if(NOT LIBCMAKER_EXPAT_SRC_DIR)
     cmr_print_error(
       "Please set LIBCMAKER_EXPAT_SRC_DIR with path to LibCMaker_Expat root.")
@@ -41,7 +41,7 @@
   cmr_print_value(LIBCMAKER_EXPAT_SRC_DIR)
   # To use our FindEXPAT.cmake in FontConfig's CMakeLists.txt
   list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_EXPAT_SRC_DIR}/cmake")
-  
+
   if(NOT LIBCMAKER_FREETYPE_SRC_DIR)
     cmr_print_error(
       "Please set LIBCMAKER_FREETYPE_SRC_DIR with path to LibCMaker_FreeType root.")
@@ -68,7 +68,7 @@
       )
     endif()
   endif()
-  
+
 
   # Configure library.
   add_subdirectory(${lib_SRC_DIR} ${lib_VERSION_BUILD_DIR})

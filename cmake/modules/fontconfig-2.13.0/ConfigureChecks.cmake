@@ -39,6 +39,8 @@ include(CheckFileOffsetBits)
 include(CMakeTestInline) # Set C_INLINE_KEYWORD
 include(TestLargeFiles)
 
+# For debug.
+#set(FC_TRY_COMPILE_DEBUG ON)
 
 # Dirent
 list(APPEND CMAKE_REQUIRED_INCLUDES
@@ -63,11 +65,13 @@ list(APPEND CMAKE_REQUIRED_LIBRARIES
 
 # TODO: this is hack, the quotes must remain.
 # CMAKE_CXX_STANDARD_LIBRARIES was documented in CMake 3.6.
-string(REPLACE "\"" "" cxx_std_libs ${CMAKE_CXX_STANDARD_LIBRARIES})
-string(REPLACE " " ";" cxx_std_libs ${cxx_std_libs})
-list(APPEND CMAKE_REQUIRED_LIBRARIES
-  ${cxx_std_libs}
-)
+if(CMAKE_CXX_STANDARD_LIBRARIES)
+  string(REPLACE "\"" "" cxx_std_libs ${CMAKE_CXX_STANDARD_LIBRARIES})
+  string(REPLACE " " ";" cxx_std_libs ${cxx_std_libs})
+  list(APPEND CMAKE_REQUIRED_LIBRARIES
+    ${cxx_std_libs}
+  )
+endif()
 
 function(check_type_exists type variable header default)
   # Code from:
@@ -109,7 +113,9 @@ macro(check_freetype_struct_has_member struct member out_var)
     message(STATUS "Looking for ${out_var} - found")
   else()
     message(STATUS "Looking for ${out_var} - not found")
-    message(STATUS ${build_OUT})
+    if(FC_TRY_COMPILE_DEBUG)
+      message(STATUS ${build_OUT})
+    endif()
   endif()
 endmacro()
 
@@ -151,7 +157,9 @@ macro(check_freetype_symbol_exists name out_var)
     message(STATUS "Looking for ${out_var} - found")
   else()
     message(STATUS "Looking for ${out_var} - not found")
-    message(STATUS ${build_OUT})
+    if(FC_TRY_COMPILE_DEBUG)
+      message(STATUS ${build_OUT})
+    endif()
   endif()
 endmacro()
 
@@ -162,7 +170,7 @@ macro(try_compile_intel_atomic_primitives out_var)
 
   ## Atomic ops availability detection
   file(WRITE "${PROJECT_BINARY_DIR}/try_compile_intel_atomic_primitives.c"
-  "   
+  "
       void memory_barrier (void) { __sync_synchronize (); }
       int atomic_add (int *i) { return __sync_fetch_and_add (i, 1); }
       int mutex_trylock (int *m) { return __sync_lock_test_and_set (m, 1); }
@@ -181,7 +189,9 @@ macro(try_compile_intel_atomic_primitives out_var)
     message(STATUS "Looking for ${out_var} - found")
   else()
     message(STATUS "Looking for ${out_var} - not found")
-    message(STATUS ${build_OUT})
+    if(FC_TRY_COMPILE_DEBUG)
+      message(STATUS ${build_OUT})
+    endif()
   endif()
 endmacro()
 
@@ -212,7 +222,9 @@ macro(try_compile_solaris_atomic_ops out_var)
     message(STATUS "Looking for ${out_var} - found")
   else()
     message(STATUS "Looking for ${out_var} - not found")
-    message(STATUS ${build_OUT})
+    if(FC_TRY_COMPILE_DEBUG)
+      message(STATUS ${build_OUT})
+    endif()
   endif()
 endmacro()
 
@@ -530,7 +542,7 @@ set(VERSION "\"${fc_VERSION}\"")
 if(NOT ANDROID)
   #/* Number of bits in a file offset, on hosts where this is settable. */
   check_file_offset_bits()
-  
+
   #/* Define for large files, on AIX-style hosts. */
   #test_large_files() set _LARGE_FILES to 1 if success.
   test_large_files(HAVE_OFF_T_64_FSEEKO_FTELLO)
