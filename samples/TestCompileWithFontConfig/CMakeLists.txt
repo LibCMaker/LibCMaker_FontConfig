@@ -40,82 +40,80 @@ if(ANDROID)
   list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_INSTALL_PREFIX}")
 endif()
 
-# To use our FindFontConfig.cmake.
-list(APPEND CMAKE_MODULE_PATH
-  "${PROJECT_SOURCE_DIR}/cmake/LibCMaker_FontConfig/cmake"
-)
-
 
 #-----------------------------------------------------------------------
 # Set path to LibCMaker root
 #-----------------------------------------------------------------------
 
-set(LIBCMAKER_SRC_DIR "${PROJECT_SOURCE_DIR}/cmake/LibCMaker")
-# Uncomment it if need functions from LibCMaker.
-#list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_SRC_DIR}/cmake/modules")
+set(LibCMaker_DIR "${CMAKE_CURRENT_LIST_DIR}/cmake/LibCMaker")
+# Uncomment it if need functions from LibCMaker
+#list(APPEND CMAKE_MODULE_PATH "${LibCMaker_DIR}/cmake")
+include(${LibCMaker_DIR}/cmake/cmr_find_package.cmake)
 
 
 #-----------------------------------------------------------------------
 # Set vars to LibCMaker_FontConfig
 #-----------------------------------------------------------------------
 
-# Standard CMake vars.
-#set(BUILD_SHARED_LIBS ON)
-
-# Vars to for lib_cmaker_fontconfig().
+set(FONTCONFIG_lib_NAME     "FontConfig")
 set(FONTCONFIG_lib_VERSION  "2.13.0")
-set(FONTCONFIG_DOWNLOAD_DIR "${PROJECT_BINARY_DIR}")
-set(FONTCONFIG_UNPACKED_DIR "${PROJECT_BINARY_DIR}")
-set(FONTCONFIG_BUILD_DIR    "${PROJECT_BINARY_DIR}/build_fontconfig")
+set(FONTCONFIG_lib_DIR  "${CMAKE_CURRENT_LIST_DIR}/cmake/LibCMaker_FontConfig")
+
+# To use below for sample sources.
+set(cmr_UNPACKED_DIR ${CMAKE_CURRENT_BINARY_DIR}/download/unpacked)
+
+# To use our FindFontConfig.cmake.
+list(APPEND CMAKE_MODULE_PATH "${FONTCONFIG_lib_DIR}/cmake/modules")
 
 set(COPY_FONTCONFIG_CMAKE_BUILD_SCRIPTS ON)
 
-# Library specific vars and options.
+
+#-----------------------------------------------------------------------
+# Library specific vars and options
+#-----------------------------------------------------------------------
 
 
 #-----------------------------------------------------------------------
-# Build and install the Dirent
+# Build, install and find the Dirent
 #-----------------------------------------------------------------------
 
 if(MSVC)
+  set(DIRENT_lib_NAME     "Dirent")
   set(DIRENT_lib_VERSION  "1.23.1")
-  set(DIRENT_DOWNLOAD_DIR "${PROJECT_BINARY_DIR}")
-  set(DIRENT_UNPACKED_DIR "${PROJECT_BINARY_DIR}")
-  set(DIRENT_BUILD_DIR    "${PROJECT_BINARY_DIR}/build_dirent")
-  
-  set(COPY_DIRENT_CMAKE_BUILD_SCRIPTS ON)
-  
-  # Library specific vars and options.
-  
-  include(
-    ${PROJECT_SOURCE_DIR}/cmake/LibCMaker_Dirent/lib_cmaker_dirent.cmake)
-  lib_cmaker_dirent(
-    VERSION       ${DIRENT_lib_VERSION}
-    DOWNLOAD_DIR  ${DIRENT_DOWNLOAD_DIR}
-    UNPACKED_DIR  ${DIRENT_UNPACKED_DIR}
-    BUILD_DIR     ${DIRENT_BUILD_DIR}
-  )
-  
-  # Needed for lib_cmaker_fontconfig() to build FontConfig with Dirent.
-  set(LIBCMAKER_DIRENT_SRC_DIR "${PROJECT_SOURCE_DIR}/cmake/LibCMaker_Dirent")
+  set(DIRENT_lib_DIR      "${CMAKE_CURRENT_LIST_DIR}/cmake/LibCMaker_Dirent")
+
   # To use our FindDirent.cmake.
-  list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_DIRENT_SRC_DIR}/cmake")
-  
-  find_package(Dirent REQUIRED)
+  list(APPEND CMAKE_MODULE_PATH "${DIRENT_lib_DIR}/cmake/modules")
+
+  set(COPY_DIRENT_CMAKE_BUILD_SCRIPTS ON)
+
+  cmr_find_package(
+    LibCMaker_DIR   ${LibCMaker_DIR}
+    NAME            ${DIRENT_lib_NAME}
+    VERSION         ${DIRENT_lib_VERSION}
+    LIB_DIR         ${DIRENT_lib_DIR}
+    REQUIRED
+  )
+
+  # Needed for cmr_find_package_fontconfig to build FontConfig with Dirent.
+  set(LIBCMAKER_DIRENT_SRC_DIR "${DIRENT_lib_DIR}")
 endif()
 
 
 #-----------------------------------------------------------------------
-# Build and install the Expat
+# Build, install and find the Expat
 #-----------------------------------------------------------------------
 
+set(EXPAT_lib_NAME      "Expat")
 set(EXPAT_lib_VERSION   "2.2.5")
-set(EXPAT_DOWNLOAD_DIR  "${PROJECT_BINARY_DIR}")
-set(EXPAT_UNPACKED_DIR  "${PROJECT_BINARY_DIR}")
-set(EXPAT_BUILD_DIR     "${PROJECT_BINARY_DIR}/build_expat")
+set(EXPAT_lib_DIR       "${CMAKE_CURRENT_LIST_DIR}/cmake/LibCMaker_Expat")
+
+# To use our FindEXPAT.cmake.
+list(APPEND CMAKE_MODULE_PATH "${EXPAT_lib_DIR}/cmake/modules")
+
+#set(SKIP_INSTALL_ALL ON)
 
 # Library specific vars and options.
-
 option(BUILD_tools "build the xmlwf tool for expat library" OFF)
 option(BUILD_examples "build the examples for expat library" OFF)
 option(BUILD_tests "build the tests for expat library" OFF)
@@ -124,9 +122,10 @@ option(BUILD_tests "build the tests for expat library" OFF)
 option(BUILD_doc "build man page for xmlwf" OFF)
 option(USE_libbsd "utilize libbsd (for arc4random_buf)" OFF)
 # Option INSTALL is set in lib_cmaker_expat() by NOT SKIP_INSTALL_ALL.
-#option(INSTALL "install expat files in cmake install target" ON)
+# Set in 'cmr_build_rules_expat' as NOT SKIP_INSTALL_ALL.
+#option(INSTALL "install expat files in cmake install target" ${NOT SKIP_INSTALL_ALL})
 
-# configuration options
+# Configuration options.
 set(XML_CONTEXT_BYTES 1024 CACHE STRING
   "Define to specify how much context to retain around the current parse point")
 option(XML_DTD
@@ -137,79 +136,68 @@ if(NOT WIN32)
     "Define to include code reading entropy from `/dev/urandom'." ON)
 endif()
 
-include(
-  ${PROJECT_SOURCE_DIR}/cmake/LibCMaker_Expat/lib_cmaker_expat.cmake)
-lib_cmaker_expat(
-  VERSION       ${EXPAT_lib_VERSION}
-  DOWNLOAD_DIR  ${EXPAT_DOWNLOAD_DIR}
-  UNPACKED_DIR  ${EXPAT_UNPACKED_DIR}
-  BUILD_DIR     ${EXPAT_BUILD_DIR}
+cmr_find_package(
+  LibCMaker_DIR   ${LibCMaker_DIR}
+  NAME            ${EXPAT_lib_NAME}
+  VERSION         ${EXPAT_lib_VERSION}
+  LIB_DIR         ${EXPAT_lib_DIR}
+  REQUIRED
+  FIND_MODULE_NAME EXPAT
 )
 
-# Needed for lib_cmaker_fontconfig() to build FontConfig with Expat.
-set(LIBCMAKER_EXPAT_SRC_DIR "${PROJECT_SOURCE_DIR}/cmake/LibCMaker_Expat")
-# To use our FindEXPAT.cmake.
-list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_EXPAT_SRC_DIR}/cmake")
-
-find_package(EXPAT REQUIRED)
+# Needed for cmr_find_package_fontconfig to build FontConfig with Expat.
+set(LIBCMAKER_EXPAT_SRC_DIR "${EXPAT_lib_DIR}")
 
 
 #-----------------------------------------------------------------------
-# Build and install the FreeType
+# Build, install and find the FreeType
 #-----------------------------------------------------------------------
 
-set(FT_lib_VERSION  "2.8.1")
-set(FT_DOWNLOAD_DIR "${PROJECT_BINARY_DIR}")
-set(FT_UNPACKED_DIR "${PROJECT_BINARY_DIR}")
-set(FT_BUILD_DIR    "${PROJECT_BINARY_DIR}/build_freetype")
+set(FT_lib_NAME     "FreeType")
+set(FT_lib_VERSION  "2.9.1")
+set(FT_lib_DIR      "${CMAKE_CURRENT_LIST_DIR}/cmake/LibCMaker_FreeType")
 
-# Library specific vars.
+# To use our FindFreetype.cmake.
+list(APPEND CMAKE_MODULE_PATH "${FT_lib_DIR}/cmake/modules")
+
+set(COPY_FREETYPE_CMAKE_BUILD_SCRIPTS ON)
+
+# Library specific vars and options.
 set(FREETYPE_NO_DIST ON)
 
-set(WITH_ZLIB OFF)
-set(WITH_BZip2 OFF)
-set(WITH_PNG OFF)
-set(WITH_HarfBuzz OFF)
+set(FT_WITH_ZLIB OFF)
+set(FT_WITH_BZip2 OFF)
+set(FT_WITH_PNG OFF)
+set(FT_WITH_HarfBuzz OFF)
 
-include(
-  ${PROJECT_SOURCE_DIR}/cmake/LibCMaker_FreeType/lib_cmaker_freetype.cmake)
-lib_cmaker_freetype(
-  VERSION       ${FT_lib_VERSION}
-  DOWNLOAD_DIR  ${FT_DOWNLOAD_DIR}
-  UNPACKED_DIR  ${FT_UNPACKED_DIR}
-  BUILD_DIR     ${FT_BUILD_DIR}
+cmr_find_package(
+  LibCMaker_DIR   ${LibCMaker_DIR}
+  NAME            ${FT_lib_NAME}
+  VERSION         ${FT_lib_VERSION}
+  LIB_DIR         ${FT_lib_DIR}
+  REQUIRED
+#  CONFIG
+  NOT_USE_VERSION_IN_FIND_PACKAGE
+  CUSTOM_LOGIC_FILE ${FT_lib_DIR}/cmake/cmr_find_package_freetype_custom.cmake
 )
 
-# Needed for lib_cmaker_fontconfig() to build FontConfig with FreeType.
-set(LIBCMAKER_FREETYPE_SRC_DIR "${PROJECT_SOURCE_DIR}/cmake/LibCMaker_FreeType")
-# To use our FindFreetype.cmake.
-list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_FREETYPE_SRC_DIR}/cmake")
-
-find_package(Freetype REQUIRED)
+# Needed for cmr_find_package_fontconfig to build FontConfig with FreeType.
+set(LIBCMAKER_FREETYPE_SRC_DIR "${FT_lib_DIR}")
 
 
 #-----------------------------------------------------------------------
-# Build and install the FontConfig
+# Build, install and find the FontConfig
 #-----------------------------------------------------------------------
 
-include(
-  ${PROJECT_SOURCE_DIR}/cmake/LibCMaker_FontConfig/lib_cmaker_fontconfig.cmake)
-
-# Make compile, build and install the library at a config CMake phase.
-lib_cmaker_fontconfig(
-  VERSION ${FONTCONFIG_lib_VERSION}
-  DOWNLOAD_DIR ${FONTCONFIG_DOWNLOAD_DIR}
-  UNPACKED_DIR ${FONTCONFIG_UNPACKED_DIR}
-  BUILD_DIR ${FONTCONFIG_BUILD_DIR}
+# Make build and install the library at a config CMake phase.
+#include(${LibCMaker_DIR}/cmake/cmr_find_package.cmake) # See above.
+cmr_find_package(
+  LibCMaker_DIR   ${LibCMaker_DIR}
+  NAME            ${FONTCONFIG_lib_NAME}
+  VERSION         ${FONTCONFIG_lib_VERSION}
+  LIB_DIR         ${FONTCONFIG_lib_DIR}
+  REQUIRED
 )
-
-
-#-----------------------------------------------------------------------
-# find_package()
-#-----------------------------------------------------------------------
-
-# Use newly got library.
-find_package(FontConfig REQUIRED)
 
 
 #-----------------------------------------------------------------------
@@ -220,7 +208,7 @@ find_package(FontConfig REQUIRED)
 
 # Get an example sources from the lib sources.
 set(lib_SRC_DIR
-  "${FONTCONFIG_UNPACKED_DIR}/fontconfig-${FONTCONFIG_lib_VERSION}/fontconfig-${FONTCONFIG_lib_VERSION}"
+  "${cmr_UNPACKED_DIR}/fontconfig-${FONTCONFIG_lib_VERSION}/fontconfig-${FONTCONFIG_lib_VERSION}"
 )
 set(lib_EXAMPLES_SRC_DIR ${lib_SRC_DIR})
 if(MSVC)

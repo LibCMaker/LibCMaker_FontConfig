@@ -21,7 +21,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-# Part of "LibCMaker/cmake/modules/cmr_build_rules.cmake".
+# Part of "LibCMaker/cmake/cmr_build_rules.cmake".
 
   # Configure the used libs.
   if(MSVC)
@@ -31,7 +31,7 @@
     endif()
     cmr_print_value(LIBCMAKER_DIRENT_SRC_DIR)
     # To use our FindDirent.cmake in FontConfig's CMakeLists.txt
-    list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_DIRENT_SRC_DIR}/cmake")
+    list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_DIRENT_SRC_DIR}/cmake/modules")
   endif()
 
   if(NOT LIBCMAKER_EXPAT_SRC_DIR)
@@ -40,7 +40,7 @@
   endif()
   cmr_print_value(LIBCMAKER_EXPAT_SRC_DIR)
   # To use our FindEXPAT.cmake in FontConfig's CMakeLists.txt
-  list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_EXPAT_SRC_DIR}/cmake")
+  list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_EXPAT_SRC_DIR}/cmake/modules")
 
   if(NOT LIBCMAKER_FREETYPE_SRC_DIR)
     cmr_print_error(
@@ -48,22 +48,21 @@
   endif()
   cmr_print_value(LIBCMAKER_FREETYPE_SRC_DIR)
   # To use our FindFreetype.cmake in FontConfig's CMakeLists.txt
-  list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_FREETYPE_SRC_DIR}/cmake")
+  list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_FREETYPE_SRC_DIR}/cmake/modules")
 
 
   # Copy CMake build scripts.
   if(COPY_FONTCONFIG_CMAKE_BUILD_SCRIPTS)
-    cmr_print_status(
-      "Copy CMake build scripts to unpacked sources.")
+    cmr_print_status("Copy CMake build scripts to unpacked sources.")
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${lib_BASE_DIR}/cmake/modules/fontconfig-${lib_VERSION}
+        ${lib_BASE_DIR}/patch/fontconfig-${lib_VERSION}
         ${lib_SRC_DIR}/
     )
     if(MSVC)
       execute_process(
         COMMAND ${CMAKE_COMMAND} -E copy
-          ${lib_BASE_DIR}/cmake/modules/fontconfig-${lib_VERSION}/src/msvc/unistd.h
+          ${lib_BASE_DIR}/patch/fontconfig-${lib_VERSION}/src/msvc/unistd.h
           ${lib_SRC_DIR}/src/
       )
     endif()

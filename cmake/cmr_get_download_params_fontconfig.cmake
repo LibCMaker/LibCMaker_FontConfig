@@ -21,7 +21,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-# Part of "LibCMaker/cmake/modules/cmr_get_download_params.cmake".
+# Part of "LibCMaker/cmake/cmr_get_download_params.cmake".
 
   if(version VERSION_EQUAL "2.11.95")
     set(arch_file_sha

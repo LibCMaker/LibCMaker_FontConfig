@@ -21,42 +21,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-## +++ Common part of the lib_cmaker_<lib_name> function +++
-set(cmr_lib_NAME "FontConfig")
-
-# To find library's LibCMaker source dir.
-set(lcm_${cmr_lib_NAME}_SRC_DIR ${CMAKE_CURRENT_LIST_DIR})
-
-if(NOT LIBCMAKER_SRC_DIR)
-  message(FATAL_ERROR
-    "Please set LIBCMAKER_SRC_DIR with path to LibCMaker root.")
-endif()
-
-include(${LIBCMAKER_SRC_DIR}/cmake/modules/lib_cmaker_init.cmake)
-
-function(lib_cmaker_fontconfig)
-
-  # Make the required checks.
-  # Add library's and common LibCMaker module paths to CMAKE_MODULE_PATH.
-  # Unset lcm_CMAKE_ARGS.
-  # Set vars:
-  #   cmr_CMAKE_MIN_VER
-  #   cmr_lib_cmaker_main_PATH
-  #   cmr_printers_PATH
-  #   lower_lib_NAME
-  # Parce args and set vars:
-  #   arg_VERSION
-  #   arg_DOWNLOAD_DIR
-  #   arg_UNPACKED_DIR
-  #   arg_BUILD_DIR
-  lib_cmaker_init(${ARGN})
-
-  include(${cmr_lib_cmaker_main_PATH})
-  include(${cmr_printers_PATH})
-
-  cmake_minimum_required(VERSION ${cmr_CMAKE_MIN_VER})
-## --- Common part of the lib_cmaker_<lib_name> function ---
-
+# Part of "LibCMaker/cmake/cmr_find_package.cmake".
 
   if(MSVC)
     if(NOT LIBCMAKER_DIRENT_SRC_DIR)
@@ -84,7 +49,7 @@ function(lib_cmaker_fontconfig)
   #-----------------------------------------------------------------------
 
 ## +++ Common part of the lib_cmaker_<lib_name> function +++
-  set(cmr_LIB_VARS
+  set(find_LIB_VARS
     COPY_FONTCONFIG_CMAKE_BUILD_SCRIPTS
 
     LIBCMAKER_DIRENT_SRC_DIR
@@ -92,9 +57,9 @@ function(lib_cmaker_fontconfig)
     LIBCMAKER_FREETYPE_SRC_DIR
   )
 
-  foreach(d ${cmr_LIB_VARS})
+  foreach(d ${find_LIB_VARS})
     if(DEFINED ${d})
-      list(APPEND lcm_CMAKE_ARGS
+      list(APPEND find_CMAKE_ARGS
         -D${d}=${${d}}
       )
     endif()
@@ -108,16 +73,15 @@ function(lib_cmaker_fontconfig)
 
 ## +++ Common part of the lib_cmaker_<lib_name> function +++
   cmr_lib_cmaker_main(
-    NAME          ${cmr_lib_NAME}
-    VERSION       ${arg_VERSION}
+    LibCMaker_DIR ${find_LibCMaker_DIR}
+    NAME          ${find_NAME}
+    VERSION       ${find_VERSION}
     LANGUAGES     CXX C
-    BASE_DIR      ${lcm_${cmr_lib_NAME}_SRC_DIR}
-    DOWNLOAD_DIR  ${arg_DOWNLOAD_DIR}
-    UNPACKED_DIR  ${arg_UNPACKED_DIR}
-    BUILD_DIR     ${arg_BUILD_DIR}
-    CMAKE_ARGS    ${lcm_CMAKE_ARGS}
+    BASE_DIR      ${find_LIB_DIR}
+    DOWNLOAD_DIR  ${cmr_DOWNLOAD_DIR}
+    UNPACKED_DIR  ${cmr_UNPACKED_DIR}
+    BUILD_DIR     ${lib_BUILD_DIR}
+    CMAKE_ARGS    ${find_CMAKE_ARGS}
     INSTALL
   )
 ## --- Common part of the lib_cmaker_<lib_name> function ---
-
-endfunction()
