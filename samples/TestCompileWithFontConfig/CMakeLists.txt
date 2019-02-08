@@ -131,7 +131,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${EXPAT_LIBRARY})
 # FreeType
 target_link_libraries(${PROJECT_NAME} PRIVATE Freetype::Freetype)
 
-if(ANDROID)
+if(ANDROID AND ANDROID_NATIVE_API_LEVEL LESS 21)
   target_link_libraries(${PROJECT_NAME} PRIVATE android_support)
 endif()
 
