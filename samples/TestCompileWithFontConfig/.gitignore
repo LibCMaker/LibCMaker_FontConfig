@@ -31,9 +31,10 @@
 # Eclipse
 .externalToolBuilders/
 .settings/
-build*/
+build/
 .cproject
 .project
 
 # For testing
-cmake/
+build*/
+libs/
