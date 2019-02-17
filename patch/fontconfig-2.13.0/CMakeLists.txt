@@ -87,8 +87,8 @@ if(UNIX AND NOT APPLE)
 endif()
 
 if(WIN32)
-  # May be "LOCAL_APPDATA_FONTCONFIG_CACHE", "WINDOWSTEMPDIR_FONTCONFIG_CACHE". 
-  #From ChangeLog:  
+  # May be "LOCAL_APPDATA_FONTCONFIG_CACHE", "WINDOWSTEMPDIR_FONTCONFIG_CACHE".
+  #From ChangeLog:
   #Date:   Sun Nov 17 22:38:28 2013 +1300
   #Defaulting <cachedir> to LOCAL_APPDATA_FONTCONFIG_CACHE for Win32 build.
   #Date:   Tue Nov 13 16:41:55 2007 -0800
@@ -100,7 +100,7 @@ if(WIN32)
   # May be "CUSTOMFONTDIR", "APPSHAREFONTDIR", "WINDOWSFONTDIR".
   # "APPSHAREFONTDIR" => to the '../share/fonts' relative to binary location.
   # "CUSTOMFONTDIR"   => to the 'fonts/' directory where the exe is located.
-  # "WINDOWSFONTDIR"  => to the system's font directory.      
+  # "WINDOWSFONTDIR"  => to the system's font directory.
   set(fc_FC_DEFAULT_FONTS "WINDOWSFONTDIR")
 #  set(fc_FC_DEFAULT_FONTS "%WINDIR%\\fonts")
 
@@ -188,11 +188,13 @@ target_include_directories(${lib_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_include_directories(${lib_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${lib_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
-if(MSVC)
-#  set_target_properties(${lib_NAME} PROPERTIES
-#    DEFINE_SYMBOL "FcPublic=__declspec(dllexport)"
-#  )
+if(MSVC AND BUILD_SHARED_LIBS)
+  set_target_properties(${lib_NAME} PROPERTIES
+    DEFINE_SYMBOL "FcPublic=__declspec(dllexport)"
+  )
+endif()
 
+if(MSVC)
 #  target_compile_definitions(${lib_NAME} PRIVATE
 #    -D_CRT_SECURE_NO_DEPRECATE
 #    -D_CRT_NONSTDC_NO_DEPRECATE
