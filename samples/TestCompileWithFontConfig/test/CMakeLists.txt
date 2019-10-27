@@ -37,8 +37,7 @@ if(BUILD_TESTING)
   )
 
   # FontConfig
-  target_include_directories(${test_NAME} PRIVATE ${FONTCONFIG_INCLUDE_DIR})
-  target_link_libraries(${test_NAME} PRIVATE ${FONTCONFIG_LIBRARY})
+  target_link_libraries(${test_NAME} PRIVATE Fontconfig::Fontconfig)
 
   # unistd.h -- only for examles from FontConfig.
   if(MSVC)

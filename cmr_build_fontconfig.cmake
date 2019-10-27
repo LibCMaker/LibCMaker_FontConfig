@@ -66,4 +66,5 @@ cmr_find_package(
   VERSION         ${FONTCONFIG_lib_VERSION}
   LIB_DIR         ${FONTCONFIG_lib_DIR}
   REQUIRED
+  FIND_MODULE_NAME Fontconfig
 )

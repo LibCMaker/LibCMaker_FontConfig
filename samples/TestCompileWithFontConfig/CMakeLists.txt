@@ -110,8 +110,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 #-----------------------------------------------------------------------
 
 # FontConfig
-target_include_directories(${PROJECT_NAME} PRIVATE ${FONTCONFIG_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${FONTCONFIG_LIBRARY})
+target_link_libraries(${PROJECT_NAME} PRIVATE Fontconfig::Fontconfig)
 
 # unistd.h -- only for examles from FontConfig.
 if(MSVC)

@@ -4,6 +4,7 @@
 #  FONTCONFIG_INCLUDE_DIR, where to find fontconfig.h
 #  FONTCONFIG_LIBRARIES, libraries to link against to use the FontConfig API.
 #  FONTCONFIG_FOUND, If false, do not try to use FontConfig.
+#  Fontconfig::Fontconfig, imported target
 
 #=============================================================================
 # Copyright 2012 Kitware, Inc.
@@ -49,6 +50,14 @@ find_package_handle_standard_args(FontConfig DEFAULT_MSG
 
 if(FONTCONFIG_FOUND)
   set(FONTCONFIG_LIBRARIES ${FONTCONFIG_LIBRARY})
+endif()
+
+if(FONTCONFIG_FOUND AND NOT TARGET Fontconfig::Fontconfig)
+  add_library(Fontconfig::Fontconfig UNKNOWN IMPORTED)
+  set_target_properties(Fontconfig::Fontconfig PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${FONTCONFIG_INCLUDE_DIR}"
+    IMPORTED_LOCATION "${FONTCONFIG_LIBRARY}"
+  )
 endif()
 
 mark_as_advanced(FONTCONFIG_INCLUDE_DIR FONTCONFIG_LIBRARY FONTCONFIG_LIBRARIES)
