@@ -168,7 +168,7 @@
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
 #cmakedefine HAVE_NDIR_H @HAVE_NDIR_H@
 
-/* Define to 1 if you have the 'posix_fadivse' function. */
+/* Define to 1 if you have the 'posix_fadvise' function. */
 #cmakedefine HAVE_POSIX_FADVISE @HAVE_POSIX_FADVISE@
 
 /* Have POSIX threads */
@@ -333,22 +333,16 @@
 /* Use regex */
 #cmakedefine USE_REGEX @USE_REGEX@
 
-
-
-
-
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE
 # define _ALL_SOURCE
 #endif
 /* Enable GNU extensions on systems that have them.  */
 #ifndef _GNU_SOURCE
-/* # define _GNU_SOURCE @_GNU_SOURCE@ */
 #cmakedefine _GNU_SOURCE @_GNU_SOURCE@
 #endif
 /* Enable threading extensions on Solaris.  */
 #ifndef _POSIX_PTHREAD_SEMANTICS
-/* # define _POSIX_PTHREAD_SEMANTICS @_POSIX_PTHREAD_SEMANTICS@ */
 #cmakedefine _POSIX_PTHREAD_SEMANTICS @_POSIX_PTHREAD_SEMANTICS@
 #endif
 /* Enable extensions on HP NonStop.  */
@@ -359,10 +353,6 @@
 #ifndef __EXTENSIONS__
 # define __EXTENSIONS__ @__EXTENSIONS__@
 #endif
-
-
-
-
 
 
 /* Version number of package */

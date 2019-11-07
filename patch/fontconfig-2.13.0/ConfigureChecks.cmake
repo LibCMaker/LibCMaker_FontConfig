@@ -469,7 +469,7 @@ set(PACKAGE "\"fontconfig\"")
 
 #/* Define to the address where bug reports for this package should be sent. */
 set(PACKAGE_BUGREPORT
-  "\"https://bugs.freedesktop.org/enter_bug.cgi?product=fontconfig\"")
+  "\"https://gitlab.freedesktop.org/fontconfig/fontconfig/issues/new\"")
 
 #/* Define to the full name of this package. */
 set(PACKAGE_NAME "\"fontconfig\"")

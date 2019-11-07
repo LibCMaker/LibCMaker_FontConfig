@@ -136,8 +136,9 @@ set(FC_DEFAULT_FONTS "\"${fc_FC_DEFAULT_FONTS}\"")
 include(ConfigureChecks.cmake)
 
 set(fontconfig_SRCS
-  ${PROJECT_SOURCE_DIR}/src/fcarch.c
+  ${PROJECT_SOURCE_DIR}/src/fcarch.h
   ${PROJECT_SOURCE_DIR}/src/fcatomic.c
+  ${PROJECT_SOURCE_DIR}/src/fcatomic.h
   ${PROJECT_SOURCE_DIR}/src/fccache.c
   ${PROJECT_SOURCE_DIR}/src/fccfg.c
   ${PROJECT_SOURCE_DIR}/src/fccharset.c
@@ -148,22 +149,27 @@ set(fontconfig_SRCS
   ${PROJECT_SOURCE_DIR}/src/fcformat.c
   ${PROJECT_SOURCE_DIR}/src/fcfreetype.c
   ${PROJECT_SOURCE_DIR}/src/fcfs.c
+  ${PROJECT_SOURCE_DIR}/src/fcptrlist.c
   ${PROJECT_SOURCE_DIR}/src/fchash.c
   ${PROJECT_SOURCE_DIR}/src/fcinit.c
   ${PROJECT_SOURCE_DIR}/src/fclang.c
   ${PROJECT_SOURCE_DIR}/src/fclist.c
   ${PROJECT_SOURCE_DIR}/src/fcmatch.c
   ${PROJECT_SOURCE_DIR}/src/fcmatrix.c
+  ${PROJECT_SOURCE_DIR}/src/fcmutex.h
   ${PROJECT_SOURCE_DIR}/src/fcname.c
   ${PROJECT_SOURCE_DIR}/src/fcobjs.c
+  ${PROJECT_SOURCE_DIR}/src/fcobjs.h
+  ${PROJECT_SOURCE_DIR}/src/fcobjshash.h
   ${PROJECT_SOURCE_DIR}/src/fcpat.c
-  ${PROJECT_SOURCE_DIR}/src/fcptrlist.c
   ${PROJECT_SOURCE_DIR}/src/fcrange.c
   ${PROJECT_SOURCE_DIR}/src/fcserialize.c
   ${PROJECT_SOURCE_DIR}/src/fcstat.c
   ${PROJECT_SOURCE_DIR}/src/fcstr.c
   ${PROJECT_SOURCE_DIR}/src/fcweight.c
+  ${PROJECT_SOURCE_DIR}/src/fcwindows.h
   ${PROJECT_SOURCE_DIR}/src/fcxml.c
+  ${PROJECT_SOURCE_DIR}/src/ftglue.h
   ${PROJECT_SOURCE_DIR}/src/ftglue.c
 )
 
@@ -219,8 +225,7 @@ target_include_directories(${lib_NAME} PRIVATE ${EXPAT_INCLUDE_DIR})
 target_link_libraries(${lib_NAME} PUBLIC ${EXPAT_LIBRARY})
 
 # FreeType
-target_include_directories(${lib_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
-target_link_libraries(${lib_NAME} PUBLIC ${FREETYPE_LIBRARIES})
+target_link_libraries(${lib_NAME} PUBLIC Freetype::Freetype)
 
 install(TARGETS ${lib_NAME}
   RUNTIME DESTINATION bin
