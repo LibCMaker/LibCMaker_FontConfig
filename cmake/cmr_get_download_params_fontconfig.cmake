@@ -31,10 +31,14 @@
     set(arch_file_sha
       "91dde8492155b7f34bb95079e79be92f1df353fcc682c19be90762fd3e12eeb9")
   endif()
+  if(version VERSION_EQUAL "2.13.92")
+    set(arch_file_sha
+      "3406a05b83a42231e3df68d02bc0a0cf47b3f2e8f11c8ede62267daf5f130016")
+  endif()
 
   set(base_url "https://www.freedesktop.org/software/fontconfig/release")
   set(src_dir_name    "fontconfig-${version}")
-  set(arch_file_name  "${src_dir_name}.tar.bz2")
+  set(arch_file_name  "${src_dir_name}.tar.gz")
   set(unpack_to_dir   "${unpacked_dir}/${src_dir_name}")
 
   set(${out_ARCH_SRC_URL}   "${base_url}/${arch_file_name}" PARENT_SCOPE)
