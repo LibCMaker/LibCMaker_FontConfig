@@ -30,7 +30,7 @@
 #-----------------------------------------------------------------------
 
 set(FONTCONFIG_lib_NAME      "FontConfig")
-set(FONTCONFIG_lib_VERSION   "2.13.92")
+set(FONTCONFIG_lib_VERSION   "2.13.0")
 set(FONTCONFIG_lib_DIR       "${CMAKE_CURRENT_LIST_DIR}")
 
 # To use our Find<LibName>.cmake.
