@@ -29,7 +29,7 @@
   endif()
   if(version VERSION_EQUAL "2.13.0")
     set(arch_file_sha
-      "91dde8492155b7f34bb95079e79be92f1df353fcc682c19be90762fd3e12eeb9")
+      "a6ca290637d8b2c4e1dd40549b179202977593f7481ec83ddfb1765ad90037ba")
   endif()
   if(version VERSION_EQUAL "2.13.92")
     set(arch_file_sha
