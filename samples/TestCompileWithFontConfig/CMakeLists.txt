@@ -103,7 +103,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
   CXX_STANDARD 11
   C_STANDARD 11
 )
-if(NOT ANDROID AND NOT APPLE)
+if(NOT ANDROID AND NOT APPLE AND NOT MINGW)
   set_target_properties(${PROJECT_NAME} PROPERTIES
     # Link all libraries into the target so as not to use LD_LIBRARY_PATH.
     LINK_WHAT_YOU_USE ON
