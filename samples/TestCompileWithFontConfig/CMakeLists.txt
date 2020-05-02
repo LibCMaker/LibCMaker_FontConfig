@@ -21,7 +21,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.7)
 
 project(LibCMaker_FontConfig_Compile_Test CXX C)
 
@@ -103,7 +103,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
   CXX_STANDARD 11
   C_STANDARD 11
 )
-if(NOT ANDROID AND NOT IOS)
+if(NOT ANDROID AND NOT APPLE)
   set_target_properties(${PROJECT_NAME} PROPERTIES
     # Link all libraries into the target so as not to use LD_LIBRARY_PATH.
     LINK_WHAT_YOU_USE ON
