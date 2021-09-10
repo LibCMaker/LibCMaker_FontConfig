@@ -35,4 +35,5 @@ cmr_LIB_DEPS_NAMES=(
   "LibCMaker_Dirent"
   "LibCMaker_Expat"
   "LibCMaker_FreeType"
+  "LibCMaker_FontConfig"
 )
